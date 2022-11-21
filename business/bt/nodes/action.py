@@ -4,6 +4,7 @@ import business.coordinator as c
 import datetime
 import json
 import business.storage as s
+import business.bt.nodes.html_format as html
 
 class ActionNode(node.Node):
     def __init__(self, id) -> None:
@@ -87,6 +88,33 @@ class QuestionNode(node.Node):
             self.status = State.FAILURE
 
 
+class ConfirmNode(QuestionNode):
+    def __init__(self, id) -> None:
+        super().__init__(id)
+
+    def toString(self):
+        return ("CONFIRM "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
+
+    async def tick(self):
+        q = s.Question(self.id, self.question, s.ResponseType.OPEN, True)
+        q.responseOptions = None
+        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+
+        await self.co.send_and_receive(_question, self.variable)
+        confirm_response = json.loads(self.co.check_world(self.variable))
+
+        #if self.sentiment.is_positive(evaluate_response.lower()):
+        if confirm_response[0]["content"].lower() == "yes":
+            self.status = State.SUCCESS
+        else:
+            self.status = State.FAILURE
+        return self.status
+
+    def reset(self):
+        if (self.status == State.SUCCESS):
+            self.status = State.FAILURE
+
+
 class GreeterNode(QuestionNode):
     def __init__(self, id) -> None:
         super().__init__(id)
@@ -105,19 +133,38 @@ class GreeterNode(QuestionNode):
         end_user_name = self.co.check_world("end_user_name")
         usecase_name = self.co.check_usecase("usecase_name")
 
-        _question = self.greet_text[time_of_day] + " " + end_user_name + "\n"
-        _question = _question + "I am the iSee Chatbot for the " + usecase_name + "\n"
-        _question = _question + "Would you like to proceed?"
+        
+        if self.co.check_world("initialise") and not self.co.check_world("proceed"):
+            _question = self.greet_text[time_of_day] + " " + end_user_name + "!<br>"
+            _question = _question + "I am the iSee Chatbot for the " + usecase_name + ", "
+            _question = _question + "Would you like to proceed?"
 
-        await self.co.send_and_receive(_question, self.variable)
+            q = s.Question(self.id, _question, s.ResponseType.OPEN, True)
+            q.responseOptions = None
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
-        proceed_response = self.co.check_world(self.variable)
-
-        # while not self.sentiment.is_positive(proceed_response.lower()):
-        while not proceed_response.lower() == "yes":
-            _question = "Would you like to proceed?"
             await self.co.send_and_receive(_question, self.variable)
-            proceed_response = self.co.check_world(self.variable)
+
+            proceed_response = json.loads(self.co.check_world(self.variable))
+            print(proceed_response)
+
+            # while not self.sentiment.is_positive(proceed_response.lower()):
+            while not proceed_response[0]["content"].lower() == "yes":
+                _question = "Would you like to proceed?"
+                q = s.Question(self.id, _question, s.ResponseType.OPEN, True)
+                q.responseOptions = None
+                _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+                await self.co.send_and_receive(_question, self.variable)
+                proceed_response = json.loads(self.co.check_world(self.variable))
+        else:
+            _question = "Thank you for using iSee!" +"\n"
+            _question = _question + "See you again soon!"
+
+            q = s.Question(self.id, _question, s.ResponseType.INFO, False)
+            q.responseOptions = None
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+
+            await self.co.send(_question)
 
         self.status = State.SUCCESS
         return self.status
@@ -163,25 +210,24 @@ class InitialiserNode(ActionNode):
 class KnowledgeQuestionNode(QuestionNode):
     def __init__(self, id) -> None:
         super().__init__(id)
-        self.question_data = []
 
     def toString(self):
         return ("KNOWLEDGE QUESTION "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " "
-                + str(self.variable) + " " + str(self.question_data))
+                + str(self.variable))
 
     async def tick(self):
-        data = self.co.check_ontology(self.question_data)
-        if data:
-            _question = self.question + "\n" + \
-                "Please select from "+", ".join(data)+"."
-            await self.co.send_and_receive(_question, self.variable)
-        else:
-            await self.co.send_and_receive(self.question, self.variable)
+        # data = self.co.check_ontology(self.question_data)
+        # if data:
+        #     _question = self.question + "\n" + \
+        #         "Please select from "+", ".join(data)+"."
+        #     await self.co.send_and_receive(_question, self.variable)
+        # else:
+        #     await self.co.send_and_receive(self.question, self.variable)
 
-        # TODO extracted knowledge level should go to use case storage, not user utterance
-        response = self.co.check_world(self.variable)
-        if response.lower() in data:
-            self.co.modify_usecase(self.variable, response.lower())
+        # # TODO extracted knowledge level should go to use case storage, not user utterance
+        # response = self.co.check_world(self.variable)
+        # if response.lower() in data:
+        #     self.co.modify_usecase(self.variable, response.lower())
 
         # TODO ask till appropriate user response
         self.status = State.SUCCESS
@@ -211,11 +257,11 @@ class NeedQuestionNode(QuestionNode):
         await self.co.send_and_receive(_question, self.variable)
         # user response
         # TODO get question from user response
-        #_repsonse = self.co.check_world(self.variable)
-        # _selected_question = s.Response(**json.loads(_response)).id
-        _selected_question = s.Response(**{ "id": "intent-179531_UserQuestion1", "content": "Which similar cases contributed to this outcome?" })
-        self.co.modify_usecase(self.variable, _selected_question.id)
+        _selected_question = json.loads(self.co.check_world(self.variable))
+        print(_selected_question)
+        self.co.modify_usecase(self.variable, _selected_question["id"])
         self.co.modify_intent()
+        self.co.modify_evaluation()
         self.status = State.SUCCESS
         return self.status
 
@@ -234,17 +280,15 @@ class PersonaQuestionNode(QuestionNode):
     async def tick(self):
         q = s.Question(self.id, self.question, s.ResponseType.RADIO, True)
         personas = self.co.get_personas()
-        q.responseOptions = [s.Response(p, ", ".join([_k+": "+_v for _k,_v in personas[p].items()])) for p in personas]
+        q.responseOptions = [s.Response(p, html.persona(personas[p])) for p in personas]
 
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
         # user response
         # TODO get persona from user response
-        #_repsonse = self.co.check_world(self.variable)
-        # _selected_persona = s.Response(**json.loads(_response)).id
-        _selected_persona = s.Response(**{ "id": "6323220632f3b8255c1b0358", "content": "Name: FTTC planner, AI Knowledge Level: no knowledge, Domain Knowledge Level: expert" })
-        print(_selected_persona.id)
-        self.co.modify_usecase(self.variable, _selected_persona.id)
+        _selected_persona = json.loads(self.co.check_world(self.variable))
+        print(_selected_persona)
+        self.co.modify_usecase(self.variable, _selected_persona["id"])
         self.co.modify_strategy()
         self.status = State.SUCCESS
         return self.status
@@ -254,18 +298,74 @@ class PersonaQuestionNode(QuestionNode):
             self.status = State.FAILURE
 
 
+class MultipleChoiceQuestionNode(QuestionNode):
+    def __init__(self, id) -> None:
+        super().__init__(id)
+        self.options = {}
+        self.type = None
+
+    def toString(self):
+        return ("SINGLE SELECT MULTIPLE CHOICE QUESTION "+str(self.status) + " " + str(self.id) + " " 
+                + str(self.question) + " " + str(self.variable))
+
+    async def tick(self):
+        q = s.Question(self.id, self.question, s.ResponseType.RADIO, True)
+        q.responseOptions = [s.Response(v,v) for v in self.options]
+
+        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+        await self.co.send_and_receive(_question, self.variable)
+
+        self.status = State.SUCCESS
+        return self.status
+
+    def reset(self):
+        if (self.status == State.SUCCESS):
+            self.status = State.FAILURE
+
+
 class ExplainerNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
         self.params = None
+        self.label = None
 
     def toString(self):
         return ("EXPLAINER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
         
-        print(self.params)
+        print(self.label, self.params)
+        # r = self.co.request_external(, self.label, params = {})
+
         self.status = State.SUCCESS
+        return self.status
+
+    def reset(self):
+        if (self.status == State.SUCCESS):
+            self.status = State.FAILURE
+
+
+class EvaluationQuestionNode(node.Node):
+    def __init__(self, id) -> None:
+        super().__init__(id)
+        self.message = None
+
+    def toString(self):
+        return ("EVALUATION "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
+
+    async def tick(self):
+        q = s.Question(self.id, self.question, s.ResponseType.OPEN, True)
+        q.responseOptions = None
+        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+
+        await self.co.send_and_receive(_question, self.variable)
+        # evaluate_response = json.loads(self.co.check_world(self.variable))
+
+        #if self.sentiment.is_positive(evaluate_response.lower()):
+        # if evaluate_response[0]["content"].lower() == "yes":
+        self.status = State.SUCCESS
+        # else:
+        #     self.status = State.FAILURE
         return self.status
 
     def reset(self):

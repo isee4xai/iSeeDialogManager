@@ -1,0 +1,1363 @@
+[
+  {
+    "instance": "63231e9432f3b8255c1b0346_6323220632f3b8255c1b0358_intent-179531",
+    "comment": "Radiograph fracture detection system",
+    "classes": [
+      "Explanation Experience"
+    ],
+    "hasDescription": {
+      "instance": "63231e9432f3b8255c1b0346Description",
+      "value": "I expect the recommender to tell what the next action should be on the given network task ?",
+      "classes": [
+        "Description"
+      ],
+      "hasAIModel": {
+        "instance": "63231e9432f3b8255c1b0346AIModel",
+        "classes": [
+          "AIModel"
+        ],
+        "solves": {
+          "instance": "63231e9432f3b8255c1b0346Multi-class Classification",
+          "classes": [
+            "Multi-class Classification"
+          ]
+        },
+        "utilises": {
+          "instance": "63231e9432f3b8255c1b0346Machine Learning,k-Nearest Neighbour",
+          "classes": [
+            "Machine Learning,k-Nearest Neighbour"
+          ]
+        },
+        "trainedOn": {
+          "instance": "63231e9432f3b8255c1b0346Dataset",
+          "classes": [
+            "Dataset"
+          ],
+          "numberOfFeatures": {
+            "value": "1",
+            "classes": "integer"
+          },
+          "numberOfInstances": {
+            "value": "5343",
+            "classes": "integer"
+          },
+          "hasDatasetType": {
+            "instance": "text",
+            "classes": [
+              "DatasetType"
+            ]
+          },
+          "hasFeatureType": [
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            },
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            }
+          ],
+          "hasFeatureNames": {
+            "instance": "[age, marital status, home ownership status, loan amount, installment, interest rate, loan period]",
+            "classes": "string"
+          },
+          "hasOutcomeNames": {
+            "instance": "[accepted, rejected]",
+            "classes": "string"
+          },
+          "trainData": {
+            "instance": "url to train data from AI Model library",
+            "classes": "string"
+          }
+        },
+        "model": {
+          "value": "url to ai model from AI Model library",
+          "classes": "string"
+        },
+        "annotatedBy": [
+          {
+            "instance": "63231e9432f3b8255c1b0346Top K Accuracy",
+            "basedOn": "Top K Accuracy",
+            "comment": "75",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346Accuracy",
+            "basedOn": "Accuracy",
+            "comment": "98",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          }
+        ]
+      },
+      "hasExplanationRequirements": {
+        "instance": "63231e9432f3b8255c1b0346Requirements",
+        "classes": [
+          "ExplanationRequirements"
+        ],
+        "hasExplanationCriteria": [
+          {
+            "instance": "63231e9432f3b8255c1b0346PortabilityCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPortability",
+            "requiredObjectValue": "model-specific"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ConcurrentnessCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasConcurrentness",
+            "requiredObjectValue": "post-hoc"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346PresentationCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPresentation",
+            "requiredValueType": "media"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationScopeCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasExplanationScope",
+            "requiredObjectValue": "local"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationTargetCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "targetType",
+            "requiredObjectValue": "prediction"
+          }
+        ]
+      },
+      "hasUserGroup": {
+        "instance": "6323220632f3b8255c1b0358",
+        "comment": "FTTC planner",
+        "hasKnowledgeOfDomain": "Telecommunication",
+        "classes": [
+          "UserGroup"
+        ],
+        "hasIntent": {
+          "instance": "Trust",
+          "classes": [
+            "Intent"
+          ]
+        },
+        "hasResources": [
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          },
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          }
+        ],
+        "possess": [
+          {
+            "instance": "6323220632f3b8255c1b0358AIKnowledge",
+            "classes": [
+              "AI Method Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "no knowledge",
+              "classes": [
+                "Knowledge Level"
+              ]
+            }
+          },
+          {
+            "instance": "6323220632f3b8255c1b0358DomainKnowledge",
+            "classes": [
+              "Domain Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "expert",
+              "classes": [
+                "Level of Knowledge"
+              ]
+            }
+          }
+        ],
+        "asks": [
+          {
+            "instance": "intent-179531_UserQuestion1",
+            "comment": "Which similar cases contributed to this outcome?",
+            "classes": [
+              "User Question"
+            ]
+          }
+        ]
+      }
+    },
+    "hasSolution": {
+      "instance": "intent-179531BehaviourTree",
+      "classes": [
+        "BehaviourTree"
+      ],
+      "version": "0.1.0",
+      "scope": "project",
+      "selectedTree": "4879ed1c-280f-4b19-b375-43f12964edaf",
+      "trees": [
+        {
+          "version": "0.1.0",
+          "scope": "tree",
+          "id": "4879ed1c-280f-4b19-b375-43f12964edaf",
+          "Instance": "FTTC planner-Trust",
+          "description": "",
+          "root": "d22a035c-75ae-414e-8135-7e9a9472254b",
+          "properties": {},
+          "nodes": {
+            "d22a035c-75ae-414e-8135-7e9a9472254b": {
+              "id": "d22a035c-75ae-414e-8135-7e9a9472254b",
+              "Concept": "Priority",
+              "Instance": "Priority",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 0,
+                "y": -60
+              },
+              "firstChild": {
+                "Id": "5b9fe0df-f3d1-46cf-9cf6-9339cc4bf760",
+                "Next": {
+                  "Id": "05cd8c08-fe53-4b89-889e-dbcfbcc5eb89",
+                  "Next": null
+                }
+              }
+            },
+            "5b9fe0df-f3d1-46cf-9cf6-9339cc4bf760": {
+              "id": "5b9fe0df-f3d1-46cf-9cf6-9339cc4bf760",
+              "Concept": "Explanation Method",
+              "Instance": "/Tabular/LIME",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": -132,
+                "y": 96
+              },
+              "params": {
+                "output_classes": "",
+                "top_classes": "",
+                "num_features": ""
+              }
+            },
+            "05cd8c08-fe53-4b89-889e-dbcfbcc5eb89": {
+              "id": "05cd8c08-fe53-4b89-889e-dbcfbcc5eb89",
+              "Concept": "Explanation Method",
+              "Instance": "/Tabular/KernelSHAPLocal",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 96,
+                "y": 96
+              },
+              "params": {
+                "output_index": ""
+              }
+            }
+          },
+          "display": {
+            "camera_x": 720,
+            "camera_y": 394.5,
+            "camera_z": 1,
+            "x": 0,
+            "y": -216
+          }
+        }
+      ],
+      "custom_nodes": []
+    },
+    "hasOutcome": {
+      "instance": "intent-179531Outcome",
+      "classes": [
+        "Outcome"
+      ],
+      "basedOn": {
+        "instance": "intent-179531Questionnaire",
+        "classes": [
+          "Survey"
+        ],
+        "questions": [
+          {
+            "instance": "intent-179531Question1",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations improved my trust of the AI system",
+            "measures": {
+              "instance": "Trust",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          },
+          {
+            "instance": "intent-179531Question2",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations helped to understand how AI model works",
+            "measures": {
+              "instance": "Satisfaction",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          }
+        ],
+        "resultsDescribedBy": {
+          "instance": "intent-179531Policy",
+          "classes": [
+            "Result Interpretation Policy"
+          ],
+          "has content": "{1:Strongly disagree, 2:Disagree, 3:Neutral, 4:Agree, 5:Strongly agree}"
+        }
+      }
+    }
+  },
+  {
+    "instance": "63231e9432f3b8255c1b0346_6323220632f3b8255c1b0358_intent-341851",
+    "classes": [
+      "Explanation Experience"
+    ],
+    "hasDescription": {
+      "instance": "63231e9432f3b8255c1b0346Description",
+      "value": "I expect the recommender to tell what the next action should be on the given network task ?",
+      "classes": [
+        "Description"
+      ],
+      "hasAIModel": {
+        "instance": "63231e9432f3b8255c1b0346AIModel",
+        "classes": [
+          "AIModel"
+        ],
+        "solves": {
+          "instance": "63231e9432f3b8255c1b0346Multi-class Classification",
+          "classes": [
+            "Multi-class Classification"
+          ]
+        },
+        "utilises": {
+          "instance": "63231e9432f3b8255c1b0346Machine Learning,k-Nearest Neighbour",
+          "classes": [
+            "Machine Learning,k-Nearest Neighbour"
+          ]
+        },
+        "trainedOn": {
+          "instance": "63231e9432f3b8255c1b0346Dataset",
+          "classes": [
+            "Dataset"
+          ],
+          "numberOfFeatures": {
+            "value": "1",
+            "classes": "integer"
+          },
+          "numberOfInstances": {
+            "value": "5343",
+            "classes": "integer"
+          },
+          "hasDatasetType": {
+            "instance": "text",
+            "classes": [
+              "DatasetType"
+            ]
+          },
+          "hasFeatureType": [
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            },
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            }
+          ],
+          "hasFeatureNames": {
+            "instance": "[age, marital status, home ownership status, loan amount, installment, interest rate, loan period]",
+            "classes": "string"
+          },
+          "hasOutcomeNames": {
+            "instance": "[accepted, rejected]",
+            "classes": "string"
+          },
+          "trainData": {
+            "instance": "url to train data from AI Model library",
+            "classes": "string"
+          }
+        },
+        "model": {
+          "value": "url to ai model from AI Model library",
+          "classes": "string"
+        },
+        "annotatedBy": [
+          {
+            "instance": "63231e9432f3b8255c1b0346Top K Accuracy",
+            "basedOn": "Top K Accuracy",
+            "comment": "75",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346Accuracy",
+            "basedOn": "Accuracy",
+            "comment": "98",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          }
+        ]
+      },
+      "hasExplanationRequirements": {
+        "instance": "63231e9432f3b8255c1b0346Requirements",
+        "classes": [
+          "ExplanationRequirements"
+        ],
+        "hasExplanationCriteria": [
+          {
+            "instance": "63231e9432f3b8255c1b0346PortabilityCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPortability",
+            "requiredObjectValue": "model-specific"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ConcurrentnessCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasConcurrentness",
+            "requiredObjectValue": "post-hoc"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346PresentationCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPresentation",
+            "requiredValueType": "media"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationScopeCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasExplanationScope",
+            "requiredObjectValue": "local"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationTargetCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "targetType",
+            "requiredObjectValue": "prediction"
+          }
+        ]
+      },
+      "hasUserGroup": {
+        "instance": "6323220632f3b8255c1b0358",
+        "comment": "FTTC planner",
+        "hasKnowledgeOfDomain": "Telecommunication",
+        "classes": [
+          "UserGroup"
+        ],
+        "hasIntent": {
+          "instance": "Transparency",
+          "classes": [
+            "Intent"
+          ]
+        },
+        "hasResources": [
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          },
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          }
+        ],
+        "possess": [
+          {
+            "instance": "6323220632f3b8255c1b0358AIKnowledge",
+            "classes": [
+              "AI Method Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "no knowledge",
+              "classes": [
+                "Knowledge Level"
+              ]
+            }
+          },
+          {
+            "instance": "6323220632f3b8255c1b0358DomainKnowledge",
+            "classes": [
+              "Domain Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "expert",
+              "classes": [
+                "Level of Knowledge"
+              ]
+            }
+          }
+        ],
+        "asks": [
+          {
+            "instance": "intent-341851_UserQuestion1",
+            "comment": "Which features contributed to this outcome?",
+            "classes": [
+              "User Question"
+            ]
+          }
+        ]
+      }
+    },
+    "hasSolution": {
+      "instance": "intent-341851BehaviourTree",
+      "classes": [
+        "BehaviourTree"
+      ],
+      "version": "0.1.0",
+      "scope": "project",
+      "selectedTree": "7029c032-93a0-476d-8b6b-afe1f86ff8ae",
+      "trees": [
+        {
+          "version": "0.1.0",
+          "scope": "tree",
+          "id": "7029c032-93a0-476d-8b6b-afe1f86ff8ae",
+          "Instance": "FTTC planner-Transparency",
+          "description": "",
+          "root": "b77ffe20-6727-4291-8fda-30544ad2ab76",
+          "properties": {},
+          "query": "[1,200000,0,0]",
+          "idModel": "ANIMALS000",
+          "query_id": "1ZE1WWOSDG",
+          "nodes": {
+            "b77ffe20-6727-4291-8fda-30544ad2ab76": {
+              "id": "b77ffe20-6727-4291-8fda-30544ad2ab76",
+              "Concept": "Sequence",
+              "Instance": "Sequence",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 0,
+                "y": 120
+              },
+              "firstChild": {
+                "Id": "ee2ee9f1-99ff-48b8-82dd-687a036c1376",
+                "Next": null
+              }
+            },
+            "ee2ee9f1-99ff-48b8-82dd-687a036c1376": {
+              "id": "ee2ee9f1-99ff-48b8-82dd-687a036c1376",
+              "Concept": "Explanation Method",
+              "Instance": "/Tabular/ALE",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 0,
+                "y": 240
+              },
+              "params": {
+                "features_to_show": ""
+              }
+            }
+          },
+          "display": {
+            "camera_x": 720,
+            "camera_y": 394.5,
+            "camera_z": 1,
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "custom_nodes": []
+    },
+    "hasOutcome": {
+      "instance": "intent-341851Outcome",
+      "classes": [
+        "Outcome"
+      ],
+      "basedOn": {
+        "instance": "intent-341851Questionnaire",
+        "classes": [
+          "Survey"
+        ],
+        "questions": [
+          {
+            "instance": "intent-341851Question1",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations improved my trust of the AI system",
+            "measures": {
+              "instance": "Trust",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          },
+          {
+            "instance": "intent-341851Question2",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations helped to understand how AI model works",
+            "measures": {
+              "instance": "Satisfaction",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          }
+        ],
+        "resultsDescribedBy": {
+          "instance": "intent-341851Policy",
+          "classes": [
+            "Result Interpretation Policy"
+          ],
+          "has content": "{1:Strongly disagree, 2:Disagree, 3:Neutral, 4:Agree, 5:Strongly agree}"
+        }
+      }
+    }
+  },
+  {
+    "instance": "63231e9432f3b8255c1b0346_6323220632f3b8255c1b0358_intent-739241",
+    "classes": [
+      "Explanation Experience"
+    ],
+    "hasDescription": {
+      "instance": "63231e9432f3b8255c1b0346Description",
+      "value": "I expect the recommender to tell what the next action should be on the given network task ?",
+      "classes": [
+        "Description"
+      ],
+      "hasAIModel": {
+        "instance": "63231e9432f3b8255c1b0346AIModel",
+        "classes": [
+          "AIModel"
+        ],
+        "solves": {
+          "instance": "63231e9432f3b8255c1b0346Multi-class Classification",
+          "classes": [
+            "Multi-class Classification"
+          ]
+        },
+        "utilises": {
+          "instance": "63231e9432f3b8255c1b0346Machine Learning,k-Nearest Neighbour",
+          "classes": [
+            "Machine Learning,k-Nearest Neighbour"
+          ]
+        },
+        "trainedOn": {
+          "instance": "63231e9432f3b8255c1b0346Dataset",
+          "classes": [
+            "Dataset"
+          ],
+          "numberOfFeatures": {
+            "value": "1",
+            "classes": "integer"
+          },
+          "numberOfInstances": {
+            "value": "5343",
+            "classes": "integer"
+          },
+          "hasDatasetType": {
+            "instance": "text",
+            "classes": [
+              "DatasetType"
+            ]
+          },
+          "hasFeatureType": [
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            },
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            }
+          ],
+          "hasFeatureNames": {
+            "instance": "[age, marital status, home ownership status, loan amount, installment, interest rate, loan period]",
+            "classes": "string"
+          },
+          "hasOutcomeNames": {
+            "instance": "[accepted, rejected]",
+            "classes": "string"
+          },
+          "trainData": {
+            "instance": "url to train data from AI Model library",
+            "classes": "string"
+          }
+        },
+        "model": {
+          "value": "url to ai model from AI Model library",
+          "classes": "string"
+        },
+        "annotatedBy": [
+          {
+            "instance": "63231e9432f3b8255c1b0346Top K Accuracy",
+            "basedOn": "Top K Accuracy",
+            "comment": "75",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346Accuracy",
+            "basedOn": "Accuracy",
+            "comment": "98",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          }
+        ]
+      },
+      "hasExplanationRequirements": {
+        "instance": "63231e9432f3b8255c1b0346Requirements",
+        "classes": [
+          "ExplanationRequirements"
+        ],
+        "hasExplanationCriteria": [
+          {
+            "instance": "63231e9432f3b8255c1b0346PortabilityCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPortability",
+            "requiredObjectValue": "model-specific"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ConcurrentnessCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasConcurrentness",
+            "requiredObjectValue": "post-hoc"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346PresentationCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPresentation",
+            "requiredValueType": "media"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationScopeCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasExplanationScope",
+            "requiredObjectValue": "local"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationTargetCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "targetType",
+            "requiredObjectValue": "prediction"
+          }
+        ]
+      },
+      "hasUserGroup": {
+        "instance": "6323220632f3b8255c1b0358",
+        "comment": "FTTC planner",
+        "hasKnowledgeOfDomain": "Telecommunication",
+        "classes": [
+          "UserGroup"
+        ],
+        "hasIntent": {
+          "instance": "Debugging",
+          "classes": [
+            "Intent"
+          ]
+        },
+        "hasResources": [
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          },
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          }
+        ],
+        "possess": [
+          {
+            "instance": "6323220632f3b8255c1b0358AIKnowledge",
+            "classes": [
+              "AI Method Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "no knowledge",
+              "classes": [
+                "Knowledge Level"
+              ]
+            }
+          },
+          {
+            "instance": "6323220632f3b8255c1b0358DomainKnowledge",
+            "classes": [
+              "Domain Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "expert",
+              "classes": [
+                "Level of Knowledge"
+              ]
+            }
+          }
+        ],
+        "asks": [
+          {
+            "instance": "intent-739241_UserQuestion1",
+            "comment": "Why was this outcome generated?",
+            "classes": [
+              "User Question"
+            ]
+          }
+        ]
+      }
+    },
+    "hasSolution": {
+      "instance": "intent-739241BehaviourTree",
+      "classes": [
+        "BehaviourTree"
+      ],
+      "version": "0.1.0",
+      "scope": "project",
+      "selectedTree": "db241756-64dd-4eb0-8796-d4f966dccd38",
+      "trees": [
+        {
+          "version": "0.1.0",
+          "scope": "tree",
+          "id": "db241756-64dd-4eb0-8796-d4f966dccd38",
+          "Instance": "FTTC planner-Debugging",
+          "description": "",
+          "root": "41bc7445-5c14-4719-8bb8-00d578bb408d",
+          "properties": {},
+          "nodes": {
+            "41bc7445-5c14-4719-8bb8-00d578bb408d": {
+              "id": "41bc7445-5c14-4719-8bb8-00d578bb408d",
+              "Concept": "Priority",
+              "Instance": "Priority",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 0,
+                "y": 108
+              },
+              "firstChild": {
+                "Id": "7e3b5a50-c119-479e-8365-3cc25adf96bf",
+                "Next": {
+                  "Id": "4b5d5211-988b-4ceb-8e37-d8b23fcdee13",
+                  "Next": null
+                }
+              }
+            },
+            "7e3b5a50-c119-479e-8365-3cc25adf96bf": {
+              "id": "7e3b5a50-c119-479e-8365-3cc25adf96bf",
+              "Concept": "Explanation Method",
+              "Instance": "/Tabular/Anchors",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": -108,
+                "y": 276
+              },
+              "params": {
+                "threshold": ""
+              }
+            },
+            "4b5d5211-988b-4ceb-8e37-d8b23fcdee13": {
+              "id": "4b5d5211-988b-4ceb-8e37-d8b23fcdee13",
+              "Concept": "Explanation Method",
+              "Instance": "/Tabular/Importance",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 84,
+                "y": 276
+              },
+              "params": {
+                "variables": ""
+              }
+            }
+          },
+          "display": {
+            "camera_x": 960,
+            "camera_y": 484.5,
+            "camera_z": 1,
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "custom_nodes": []
+    },
+    "hasOutcome": {
+      "instance": "intent-739241Outcome",
+      "classes": [
+        "Outcome"
+      ],
+      "basedOn": {
+        "instance": "intent-739241Questionnaire",
+        "classes": [
+          "Survey"
+        ],
+        "questions": [
+          {
+            "instance": "intent-739241Question1",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations had sufficient details",
+            "measures": {
+              "instance": "Goodness",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          },
+          {
+            "instance": "intent-739241Question2",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations helped to understand how AI model works",
+            "measures": {
+              "instance": "Satisfaction",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          }
+        ],
+        "resultsDescribedBy": {
+          "instance": "intent-739241Policy",
+          "classes": [
+            "Result Interpretation Policy"
+          ],
+          "has content": "{1:Disagree, 2:Neutral, 3:Agree}"
+        }
+      }
+    }
+  },
+  {
+    "instance": "63231e9432f3b8255c1b0346_6323220632f3b8255c1b0358_intent-413961",
+    "classes": [
+      "Explanation Experience"
+    ],
+    "hasDescription": {
+      "instance": "63231e9432f3b8255c1b0346Description",
+      "value": "I expect the recommender to tell what the next action should be on the given network task ?",
+      "classes": [
+        "Description"
+      ],
+      "hasAIModel": {
+        "instance": "63231e9432f3b8255c1b0346AIModel",
+        "classes": [
+          "AIModel"
+        ],
+        "solves": {
+          "instance": "63231e9432f3b8255c1b0346Multi-class Classification",
+          "classes": [
+            "Multi-class Classification"
+          ]
+        },
+        "utilises": {
+          "instance": "63231e9432f3b8255c1b0346Machine Learning,k-Nearest Neighbour",
+          "classes": [
+            "Machine Learning,k-Nearest Neighbour"
+          ]
+        },
+        "trainedOn": {
+          "instance": "63231e9432f3b8255c1b0346Dataset",
+          "classes": [
+            "Dataset"
+          ],
+          "numberOfFeatures": {
+            "value": "1",
+            "classes": "integer"
+          },
+          "numberOfInstances": {
+            "value": "5343",
+            "classes": "integer"
+          },
+          "hasDatasetType": {
+            "instance": "text",
+            "classes": [
+              "DatasetType"
+            ]
+          },
+          "hasFeatureType": [
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            },
+            {
+              "instance": "numerical",
+              "classes": [
+                "Data Type"
+              ]
+            }
+          ],
+          "hasFeatureNames": {
+            "instance": "[age, marital status, home ownership status, loan amount, installment, interest rate, loan period]",
+            "classes": "string"
+          },
+          "hasOutcomeNames": {
+            "instance": "[accepted, rejected]",
+            "classes": "string"
+          },
+          "trainData": {
+            "instance": "url to train data from AI Model library",
+            "classes": "string"
+          }
+        },
+        "model": {
+          "value": "url to ai model from AI Model library",
+          "classes": "string"
+        },
+        "annotatedBy": [
+          {
+            "instance": "63231e9432f3b8255c1b0346Top K Accuracy",
+            "basedOn": "Top K Accuracy",
+            "comment": "75",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346Accuracy",
+            "basedOn": "Accuracy",
+            "comment": "98",
+            "measures": "Performance",
+            "classes": [
+              "AIModelAssessmentResult"
+            ]
+          }
+        ]
+      },
+      "hasExplanationRequirements": {
+        "instance": "63231e9432f3b8255c1b0346Requirements",
+        "classes": [
+          "ExplanationRequirements"
+        ],
+        "hasExplanationCriteria": [
+          {
+            "instance": "63231e9432f3b8255c1b0346PortabilityCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPortability",
+            "requiredObjectValue": "model-specific"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ConcurrentnessCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasConcurrentness",
+            "requiredObjectValue": "post-hoc"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346PresentationCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasPresentation",
+            "requiredValueType": "media"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationScopeCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "hasExplanationScope",
+            "requiredObjectValue": "local"
+          },
+          {
+            "instance": "63231e9432f3b8255c1b0346ExplanationTargetCriteria",
+            "classes": [
+              "ExplanationCriteria"
+            ],
+            "onProperty": "targetType",
+            "requiredObjectValue": "prediction"
+          }
+        ]
+      },
+      "hasUserGroup": {
+        "instance": "6323220632f3b8255c1b0358",
+        "comment": "FTTC planner",
+        "hasKnowledgeOfDomain": "Telecommunication",
+        "classes": [
+          "UserGroup"
+        ],
+        "hasIntent": {
+          "instance": "About",
+          "classes": [
+            "Intent"
+          ]
+        },
+        "hasResources": [
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          },
+          {
+            "instance": "ScreenDisplay",
+            "classes": [
+              "ScreenDisplay"
+            ]
+          }
+        ],
+        "possess": [
+          {
+            "instance": "6323220632f3b8255c1b0358AIKnowledge",
+            "classes": [
+              "AI Method Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "no knowledge",
+              "classes": [
+                "Knowledge Level"
+              ]
+            }
+          },
+          {
+            "instance": "6323220632f3b8255c1b0358DomainKnowledge",
+            "classes": [
+              "Domain Knowledge"
+            ],
+            "levelOfKnowledge": {
+              "instance": "expert",
+              "classes": [
+                "Level of Knowledge"
+              ]
+            }
+          }
+        ],
+        "asks": [
+          {
+            "instance": "intent-413961_UserQuestion1",
+            "comment": "What is the AI model which decided the outcome?",
+            "classes": [
+              "User Question"
+            ]
+          },
+          {
+            "instance": "intent-413961_UserQuestion2",
+            "comment": "What data is this outcome based upon?",
+            "classes": [
+              "User Question"
+            ]
+          }
+        ]
+      }
+    },
+    "hasSolution": {
+      "instance": "intent-413961BehaviourTree",
+      "classes": [
+        "BehaviourTree"
+      ],
+      "version": "0.1.0",
+      "scope": "project",
+      "selectedTree": "17a47c49-ac8c-466a-8bea-623a3f6423b8",
+      "trees": [
+        {
+          "version": "0.1.0",
+          "scope": "tree",
+          "id": "17a47c49-ac8c-466a-8bea-623a3f6423b8",
+          "Instance": "FTTC planner-About",
+          "description": "",
+          "root": "5a2da540-d5d8-44ab-8401-1b2cf83b55f5",
+          "properties": {},
+          "nodes": {
+            "5a2da540-d5d8-44ab-8401-1b2cf83b55f5": {
+              "id": "5a2da540-d5d8-44ab-8401-1b2cf83b55f5",
+              "Concept": "Sequence",
+              "Instance": "Sequence",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 0,
+                "y": 120
+              },
+              "firstChild": {
+                "Id": "54265adc-ae6e-4edb-98d6-3c8d16f4855b",
+                "Next": null
+              }
+            },
+            "54265adc-ae6e-4edb-98d6-3c8d16f4855b": {
+              "id": "54265adc-ae6e-4edb-98d6-3c8d16f4855b",
+              "Concept": "Explanation Method",
+              "Instance": "/Tabular/KernelSHAPLocal",
+              "description": "",
+              "properties": {},
+              "display": {
+                "x": 0,
+                "y": 276
+              },
+              "params": {
+                "output_index": ""
+              }
+            }
+          },
+          "display": {
+            "camera_x": 960,
+            "camera_y": 484.5,
+            "camera_z": 1,
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "custom_nodes": []
+    },
+    "hasOutcome": {
+      "instance": "intent-413961Outcome",
+      "classes": [
+        "Outcome"
+      ],
+      "basedOn": {
+        "instance": "intent-413961Questionnaire",
+        "classes": [
+          "Survey"
+        ],
+        "questions": [
+          {
+            "instance": "intent-413961Question1",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations had sufficient details",
+            "measures": {
+              "instance": "Goodness",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          },
+          {
+            "instance": "intent-413961Question2",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Explanations helped to understand how AI model works",
+            "measures": {
+              "instance": "Satisfaction",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          },
+          {
+            "instance": "intent-413961Question3",
+            "classes": [
+              "Question"
+            ],
+            "comment": "Trust of the AI system decisions is now improved",
+            "measures": {
+              "instance": "Trust",
+              "classes": [
+                "User Evaluation Dimension"
+              ]
+            }
+          }
+        ],
+        "resultsDescribedBy": {
+          "instance": "intent-413961Policy",
+          "classes": [
+            "Result Interpretation Policy"
+          ],
+          "has content": "{1:Strongly disagree, 2:Disagree, 3:Neutral, 4:Agree, 5:Strongly agree}"
+        }
+      },
+      "isDerivedFrom": [
+        {
+          "instance": "23842346932_intent-413961Question1UserEvaluationResult",
+          "classes": [
+            "User Evaluation Result"
+          ],
+          "basedOn": "intent-413961Question1",
+          "comment": "Disagree",
+          "wasAssociatedWith": "23842346932User"
+        },
+        {
+          "instance": "37246832768_intent-413961Question1UserEvaluationResult",
+          "classes": [
+            "User Evaluation Result"
+          ],
+          "basedOn": "intent-413961Question2",
+          "comment": "Strongly Disagree",
+          "wasAssociatedWith": "37246832768User"
+        },
+        {
+          "instance": "23842346932_intent-413961Question3UserEvaluationResult",
+          "classes": [
+            "User Evaluation Result"
+          ],
+          "basedOn": "intent-413961Question3",
+          "comment": "Agree",
+          "wasAssociatedWith": "23842346932User"
+        }
+      ]
+    }
+  }
+]

@@ -54,15 +54,34 @@ class SequenceNode(node.Node):
             child.reset()
 
 
-class StrategyNode(node.Node):
+class EvaluationStrategyNode(SequenceNode):
     def __init__(self, id) -> None:
         super().__init__(id)
-        self.children = []
 
     def toString(self):
-        return "STRATEGY " + str(self.status) + " " + str(self.id)
+        return "EVALUATION STRATEGY " + str(self.status) + " " + str(self.id)
 
     async def tick(self):
+
+        self.status = State.SUCCESS
+        for child in self.children:
+            if (await child.tick() == State.FAILURE):
+                # self.status = State.FAILURE
+                break
+
+        # back to parents node
+        return self.status
+
+
+class ExplanationStrategyNode(SequenceNode):
+    def __init__(self, id) -> None:
+        super().__init__(id)
+
+    def toString(self):
+        return "EXPLANATION STRATEGY " + str(self.status) + " " + str(self.id)
+
+    async def tick(self):
+
         self.status = State.SUCCESS
         for child in self.children:
             if (await child.tick() == State.FAILURE):
@@ -71,9 +90,3 @@ class StrategyNode(node.Node):
 
         # back to parents node
         return self.status
-
-    def reset(self):
-        self.status = State.FAILURE
-        for child in self.children:
-            child.reset()
-

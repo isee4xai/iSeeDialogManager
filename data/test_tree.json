@@ -1,0 +1,200 @@
+{
+  "version": "0.1.0",
+  "scope": "tree",
+  "id": "2ceb7699-676d-4ac6-b03f-82ea4b4df5d8",
+  "Instance": "simple",
+  "description": "",
+  "root": "e2268697-c778-4a61-8fd1-fcff3e947357",
+  "properties": {},
+  "custom_nodes": [
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "World Modifier",
+      "category": "action",
+      "title": "World Modifier",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Question",
+      "category": "action",
+      "title": "Question",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Equal",
+      "category": "condition",
+      "title": "Equal",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Need Question",
+      "category": "action",
+      "title": "Need Question",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Initialiser",
+      "category": "action",
+      "title": "Initialiser",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Greeter",
+      "category": "action",
+      "title": "Greeter",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Usecase Modifier",
+      "category": "action",
+      "title": "Usecase Modifier",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Knowledge Question",
+      "category": "action",
+      "title": "Knowledge Question",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Explaination Strategy",
+      "category": "action",
+      "title": "Explaination Strategy",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Strategy",
+      "category": "composite",
+      "title": "Strategy",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Evaluation",
+      "category": "action",
+      "title": "Evaluation",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Persona Question",
+      "category": "action",
+      "title": "Persona Question",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Navigator",
+      "category": "action",
+      "title": "Navigator",
+      "description": null,
+      "properties": {}
+    }
+  ],
+  "nodes": {
+    "e2268697-c778-4a61-8fd1-fcff3e947357": {
+      "id": "e2268697-c778-4a61-8fd1-fcff3e947357",
+      "Concept": "Sequence",
+      "Instance": "Sequence",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 0,
+        "y": -36
+      },
+      "firstChild": {
+        "Id": "82cc7584-4e8a-40bd-a1a8-3eb78fb04246",
+        "Next": {
+          "Id": "460629e7-86ae-4494-85a3-4638964b0af0",
+          "Next": {
+            "Id": "d22cf5d8-53fe-4a6f-a49c-c27f141df7e3",
+            "Next": null
+          }
+        }
+      }
+    },
+    "82cc7584-4e8a-40bd-a1a8-3eb78fb04246": {
+      "id": "82cc7584-4e8a-40bd-a1a8-3eb78fb04246",
+      "Concept": "Question",
+      "Instance": "Name",
+      "description": "",
+      "properties": {
+        "question": "What's your name",
+        "variable": "name"
+      },
+      "display": {
+        "x": -84,
+        "y": 60
+      }
+    },
+    "460629e7-86ae-4494-85a3-4638964b0af0": {
+      "id": "460629e7-86ae-4494-85a3-4638964b0af0",
+      "Concept": "Question",
+      "Instance": "Age",
+      "description": "",
+      "properties": {
+        "question": "How old are you?",
+        "variable": "age"
+      },
+      "display": {
+        "x": 96,
+        "y": 60
+      }
+    },
+    "d22cf5d8-53fe-4a6f-a49c-c27f141df7e3": {
+      "id": "d22cf5d8-53fe-4a6f-a49c-c27f141df7e3",
+      "Concept": "Question",
+      "Instance": "Job",
+      "description": "",
+      "properties": {
+        "question": "What do you do for living?",
+        "variable": "job"
+      },
+      "display": {
+        "x": 288,
+        "y": 60
+      }
+    }
+  },
+  "display": {
+    "camera_x": 720,
+    "camera_y": 352.5,
+    "camera_z": 1,
+    "x": 0,
+    "y": -120
+  }
+}

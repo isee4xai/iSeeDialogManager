@@ -1,0 +1,234 @@
+[
+    {
+        "name": "Tabular/ALE",
+        "_method_description": "Computes the accumulated local effects (ALE) of a model for the specified features. The outcome represents the global feature effect on the prediction probability. This method accepts 3 arguments: the 'id', the 'url', and the 'params' JSON with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "url": "External URL of the prediction function. Ignored if a model file was uploaded to the server. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (instances represented as arrays). It must return a array of N outputs (predictions for each instance).",
+        "params": {
+            "features_to_show": "(Optional) Array of ints representing the indices of the features to be explained. Defaults to all features."
+        }
+    },
+    {
+        "name": "Tabular/LIME",
+        "_method_description": "LIME perturbs the input data samples in order to train a simple model that approximates the prediction for the given instance and similar ones. The explanation contains the weight of each attribute to the prediction value. This method accepts 4 arguments: the 'id', the 'instance', the 'url'(optional), and the 'params' dictionary (optiohnal) with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array representing a row with the feature values of an instance not including the target class.",
+        "url": "External URL of the prediction function. Ignored if a model file was uploaded to the server. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (instances represented as arrays). It must return a array of N outputs (predictions for each instance).",
+        "params": {
+            "output_classes": "(Optional) Array of ints representing the classes to be explained.",
+            "top_classes": "(Optional) Int representing the number of classes with the highest prediction probability to be explained. Overrides 'output_classes' if provided.",
+            "num_features": "(Optional) Int representing the maximum number of features to be included in the explanation."
+        }
+    },
+    {
+        "name": "Tabular/DicePublic",
+        "_method_description": "Generates counterfactuals using the training data as a baseline. Accepts 3 arguments: the 'id' string, the 'instance', and the 'params' dictionary (optional) containing the configuration parameters of the explainer. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array representing a row with the feature values of an instance including the target class.",
+        "params": {
+            "desired_class": "(optional) Integer representing the index of the desired counterfactual class. Defaults to class 1. You may also use the string 'opposite' for binary classification",
+            "method": "(optional) The method used for counterfactual generation. The supported methods are: 'random' (random sampling), 'genetic' (genetic algorithms), 'kdtrees'. Defaults to 'random'.",
+            "features_to_vary": "(optional) Either a string 'all' or a list of strings representing the feature names to vary. Defaults to all features.",
+            "num_cfs": "(optional) number of counterfactuals to be generated for each instance.",
+            "permitted_range": "(optional) JSON object with feature names as keys and permitted range in array as values.",
+            "continuous_features_precision": "(optional) JSON object with feature names as keys and precisions as values."
+        },
+        "params_example": {
+            "desired_class": 0,
+            "features_to_vary": "all",
+            "method": "random",
+            "num_cfs": 3,
+            "permitted_range": {
+                "Height": [
+                    0,
+                    250
+                ]
+            },
+            "continuous_features_precision": {
+                "Height": 1,
+                "Weight": 3
+            }
+        }
+    },
+    {
+        "name": "Tabular/DicePrivate",
+        "_method_description": "Generates counterfactuals without the training data. However, it requires the format and ranges of the data to be specified when uploading the model. Currently supported for TensorFlow models only. Accepts 3 arguments: the 'id' string, the 'instance', and the 'params' dictionary (optional) containing the configuration parameters of the explainer. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array representing a row with the feature values of an instance including the target class.",
+        "params": {
+            "desired_class": "(Optional) Integer representing the index of the desired counterfactual class. Defaults to class 1. You may also use the string 'opposite' for binary classification",
+            "features_to_vary": "(optional) Either a string 'all' or a list of strings representing the feature names to vary. Defaults to all features.",
+            "num_cfs": "(optional) number of counterfactuals to be generated for each instance.",
+            "method": "(optional) The method used for counterfactual generation. The supported methods for private data are: 'random' (random sampling) and 'genetic' (genetic algorithms). Defaults to 'random'."
+        },
+        "params_example": {
+            "features_to_vary": "all",
+            "desired_class": 0,
+            "num_cfs": 3,
+            "method": "random"
+        }
+    },
+    {
+        "name": "Tabular/KernelSHAPLocal",
+        "_method_description": "This explaining method displays the contribution of each attribute for an individual prediction based on Shapley values. This method accepts 4 arguments: the 'id', the 'instance', the 'url' (optional), and the 'params' dictionary (optional) with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array with the feature values of an instance without including the target class.",
+        "url": "External URL of the prediction function. Ignored if a model file was uploaded to the server. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (instances represented as arrays). It must return a array of N outputs (predictions for each instance).",
+        "params": {
+            "output_index": "(Optional) Integer representing the index of the class to be explained. Ignore for regression models. The default index is 1."
+        }
+    },
+    {
+        "name": "Tabular/KernelSHAPGlobal",
+        "_method_description": "This explaining method displays the contribution of each attribute for a whole dataset based on Shapley values. This method accepts 3 arguments: the 'id', the 'url', and the 'params' JSON with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "url": "External URL of the prediction function. Ignored if a model file was previously uploaded to the server. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (instances represented as arrays). It must return a array of N outputs (predictions for each instance).",
+        "params": {
+            "output_index": "(Optional) Integer representing the index of the class to be explained. Ignore for regression models. Defaults to class 1."
+        }
+    },
+    {
+        "name": "Tabular/TreeSHAPLocal",
+        "_method_description": "This explaining method displays the contribution of each attribute for an individual prediction based on Shapley values (for tree ensemble methods only). Supported for XGBoost, LightGBM, CatBoost, scikit-learn and pyspark tree models. This method accepts 3 arguments: the 'id', the 'instance', and the 'params' JSON with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array with the feature values of an instance without including the target class.",
+        "params": {
+            "output_index": "(Optional) Integer representing the index of the class to be explained. Ignore for regression models. The default index is 1.",
+            "plot_type": "(Optional) String with the name of the plot to be generated. The supported plots are 'waterfall', 'force', 'decision' and 'bar'. Defaults to 'waterfall'."
+        }
+    },
+    {
+        "name": "Tabular/TreeSHAPGlobal",
+        "_method_description": "This explaining method displays the contribution of each attribute for an individual prediction based on Shapley values (for tree ensemble methods only). Supported for XGBoost, LightGBM, CatBoost, scikit-learn and pyspark tree models. This method accepts 2 arguments: the 'id', and the 'params' JSON with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "params": {
+            "output_index": "(Optional) Integer representing the index of the class to be explained. Ignore for regression models. The default index is 1."
+        }
+    },
+    {
+        "name": "Tabular/DeepSHAPLocal",
+        "_method_description": "This explaining method displays the contribution of each attribute for an individual prediction based on Shapley values (for tree ensemble methods only). Supported for XGBoost, LightGBM, CatBoost, scikit-learn and pyspark tree models. This method accepts 3 arguments: the 'id', the 'instance', and the 'params' dictionary (optional) with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array with the feature values of an instance without including the target class.",
+        "params": {
+            "output_index": "(Optional) Integer representing the index of the class to be explained. Ignore for regression models. The default index is 1.",
+            "plot_type": "(Optional) String with the name of the plot to be generated. The supported plots are 'waterfall','decision' and 'bar'. Defaults to 'waterfall'."
+        }
+    },
+    {
+        "name": "Tabular/DeepSHAPGlobal",
+        "_method_description": "This explaining method displays the average contribution of each attribute for the whole training dataset based on Shapley values (for TensorFlow/Keras models only). This method accepts 2 arguments: the 'id', and the 'params' JSON with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "params": {
+            "output_index": "(Optional) Integer representing the index of the class to be explained. Ignore for regression models. Defaults to class 1."
+        }
+    },
+    {
+        "name": "Tabular/Anchors",
+        "_method_description": "This method provides local explanations in the form of simple boolean rules with a precision score and a coverage value which represents the scope in which that rules applies to similar instances. This method accepts 4 arguments: the 'id', the 'instance', the 'url' (optional), and the 'params' JSON (optional) with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array representing a row with the feature values of an instance without including the target class.",
+        "url": "External URL of the prediction function. Ignored if a model file was uploaded to the server. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (instances represented as arrays). It must return a array of N outputs (predictions for each instance).",
+        "params": {
+            "threshold": "(Optional) The minimum level of precision required for the anchors. Default is 0.95"
+        }
+    },
+    {
+        "name": "Tabular/Importance",
+        "_method_description": "This method measures the increase in the prediction error of the model after the feature's values are randomly permuted. A feature is considered important if the error of the model increases significantly when permuting it. Accepts 2 arguments: the 'id' string, and the 'params' object (optional) containing the configuration parameters of the explainer. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "params": {
+            "variables": "(Optional) Array of strings with the names of the features for which the importance will be calculated. Defaults to all features."
+        }
+    },
+    {
+        "name": "Images/LIME",
+        "_method_description": "Displays the group of pixels that contribute positively or negatively to the prediction of the image class.This method accepts 5 arguments: the 'id', the 'url' (optional), the 'params' dictionary (optional) with the configuration parameters of the method, the 'instance' containing the image that will be explained as a matrix, or the 'image' file instead. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "url": "External URL of the prediction function. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (images represented as arrays). It must return N outputs (predictions for each image).",
+        "instance": "Matrix representing the image to be explained.",
+        "image": "Image file to be explained. Ignored if 'instance' was specified in the request. Passing a file is only recommended when the model works with black and white images, or color images that are RGB-encoded using integers ranging from 0 to 255.",
+        "params": {
+            "top_classes": "(Optional) Int representing the number of classes with the highest prediction probablity to be explained.",
+            "segmentation_fn": "(Optional) A string with a segmentation algorithm to be used from the following:'quickshift', 'slic', or 'felzenszwalb'"
+        }
+    },
+    {
+        "name": "Images/Anchors",
+        "_method_description": "Displays the pixels that are sufficient to the model to justify the predicted class. This method accepts 5 arguments: the 'id', the 'url' (optional), the 'params' dictionary (optional) with the configuration parameters of the method, the 'instance' containing the image that will be explained as a matrix, or the 'image' file instead. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "url": "External URL of the prediction function. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (images represented as arrays). It must return N outputs (predictions for each image).",
+        "instance": "Matrix representing the image to be explained.",
+        "image": "Image file to be explained. Ignored if 'instance' was specified in the request. Passing a file is only recommended when the model works with black and white images, or color images that are RGB-encoded using integers ranging from 0 to 255.",
+        "params": {
+            "threshold": "(Optional) A float from 0 to 1 with the desired precision for the anchor.",
+            "segmentation_fn": "(Optional) A string with an image segmentation algorithm from the following:'quickshift', 'slic', or 'felzenszwalb'."
+        }
+    },
+    {
+        "name": "Images/Counterfactuals",
+        "_method_description": "Displays an image that is as similar as possible to the original but with a different prediction. This method accepts 5 arguments: the 'id', the 'url' (optional), the 'params' dictionary (optional) with the configuration parameters of the method, the 'instance' containing the image that will be explained as a matrix, or the 'image' file instead. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally. If provided, then 'url' is ignored.",
+        "url": "External URL of the prediction function. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (images represented as arrays). It must return N outputs (predictions for each image).",
+        "instance": "Matrix representing the image to be explained.",
+        "image": "Image file to be explained. Ignored if 'instance' was specified in the request. Passing a file is only recommended when the model works with black and white images, or color images that are RGB-encoded using integers ranging from 0 to 255.",
+        "params": {
+            "target_class": "(optional) A string containing 'other' or 'same', or an integer denoting the desired class for the counterfactual instance. Defaults to 'other'.",
+            "target_proba": "(optional) Float from 0 to 1 representing the target probability for the counterfactual generated. Defaults to 1."
+        }
+    },
+    {
+        "name": "Images/GradCamTorch",
+        "_method_description": "Gradient-weighted Class Activation Mapping (Grad-CAM), uses the gradients of any target concept, flowing into the final convolutional layer to produce a coarse localization map highlighting important regions in the image for predicting the concept.This method accepts 4 arguments: the 'id', the 'params' dictionary (optional) with the configuration parameters of the method, the 'instance' containing the image that will be explained as a matrix, or the 'image' file instead. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Matrix representing the image to be explained.",
+        "image": "Image file to be explained. Ignored if 'instance' was specified in the request. Passing a file is only recommended when the model works with black and white images, or color images that are RGB-encoded using integers ranging from 0 to 255.",
+        "params": {
+            "target_layer_index": "(Optional) index of the target layer to be accessed. Provide it when you want to focus on a specific component of the target layer.If not provided, the whole layer specified as target when uploading the model will be used.",
+            "target_class": "(Optional) Integer representing the index of the target class to generate the explanation. If not provided, defaults to the class with the highest predicted probability.",
+            "aug_smooth": "(Optional) Boolean indicating whether to apply augmentation smoothing (defaults to True). This has the effect of better centering the CAM around the objects. However, it increases the run time by x6."
+        }
+    },
+    {
+        "name": "Text/LIME",
+        "_method_description": "LIME perturbs the input data samples in order to train a simple model that approximates the prediction for the given instance and similar ones. The explanation contains the weight of each word to the prediction value. This method accepts 4 arguments: the 'id', the 'instance', the 'url', and the 'params' JSON with the configuration parameters of the method. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "A string with the text to be explained.",
+        "url": "External URL of the prediction function. Ignored if a model file was uploaded to the server. This url must be able to handle a POST request receiving a (multi-dimensional) array of N data points as inputs (instances represented as arrays). It must return a array of N outputs (predictions for each instance).",
+        "params": {
+            "output_classes": "(Optional) Array of ints representing the classes to be explained.",
+            "top_classes": "(Optional) Int representing the number of classes with the highest prediction probablity to be explained.",
+            "num_features": "(Optional) Int representing the maximum number of features to be included in the explanation."
+        }
+    },
+    {
+        "name": "Tabular/DisCERN",
+        "_method_description": "Generates a counterfactual. Requires 3 arguments: the 'id' string, the 'instance' to be explained, and the 'params' object containing the configuration parameters of the explainer. These arguments are described below.",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "Array of feature values of the instance to be explained.",
+        "params": {
+            "desired_class": "Integer representing the index of the desired counterfactual class, or 'opposite' in the case of binary classification. Defaults to 'opposite'.",
+            "feature_attribution_method": "Feature attribution method used for obtaining feature weights; currently supports LIME, SHAP and Integrated Gradients. Defaults to LIME.",
+            "attributed_instance": "Indicate on which instance to use feature attribution: Q for query or N for NUN. Defaults to Q."
+        },
+        "params_example": {
+            "instance": [
+                180,
+                78,
+                0.2
+            ],
+            "desired_class": "opposite",
+            "feature_attribution_method": "LIME",
+            "attributed_instance": "Q"
+        }
+    },
+    {
+        "name": "Text/NLPClassifer",
+        "_method_description": "An explainer for NLP classification models. ",
+        "id": "Identifier of the ML model that was stored locally.",
+        "instance": "A string with the text to be explained.",
+        "params": {
+            "format": "string defining the output format of the explanation. Can be set to either 'json' (default value) so a JSON-formatted text is generated, or 'html' for an HTML output."
+        }
+    }
+]
