@@ -3,7 +3,7 @@ import business.bt.tree_util as tg
 import business.bt.nodes.node as node
 from typing import Dict
 import business.coordinator as c
-from business.bt.nodes.composite import StrategyNode
+from business.bt.nodes.composite import ExplanationStrategyNode, EvaluationStrategyNode
 
 class BehaviourTree:
 
@@ -18,12 +18,15 @@ class BehaviourTree:
 	async def run(self):
 		await self.tree.root.tick()
 		
-	def restart(self):
+	def restart(self): 
 		pass
 
-	def plug_strategy(self, _sub_tree):
+	def plug_strategy(self, _sub_tree, replace_node_type):
 		# there is always a stategy node
-		strategy_node = [n for n in self.tree.nodes.values() if isinstance(n, StrategyNode)][0]
+		if replace_node_type == "Explanation Strategy":
+			strategy_node = [n for n in self.tree.nodes.values() if isinstance(n, ExplanationStrategyNode)][0]
+		elif replace_node_type == "Evaluation Strategy":
+			strategy_node = [n for n in self.tree.nodes.values() if isinstance(n, EvaluationStrategyNode)][0]
 		strategy_node.children =[_sub_tree.root]
 		tg.printTree(self.tree.root)
 

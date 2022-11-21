@@ -1,0 +1,192 @@
+{
+    "_id": "63231e9432f3b8255c1b0346",
+    "name": "telco recommender2",
+    "goal": "I expect the recommender to tell what the next action should be on the given network task ?",
+    "settings": {
+        "ai_task": "Multi-class Classification",
+        "ai_method": [
+            "Machine Learning",
+            "k-Nearest Neighbour"
+        ],
+        "dataset_type": "text",
+        "data_type": "numerical",
+        "model_outcome": "Multi-Class",
+        "num_features": 1,
+        "num_instances": 5343,
+        "model_mode": "file",
+        "assessments": [
+            {
+                "assesment_type": "Top K Accuracy",
+                "assesment_val": "75"
+            },
+            {
+                "assesment_type": "Accuracy",
+                "assesment_val": "98"
+            }
+        ],
+        "model": {
+            "file": {
+                "uid": "rc-upload-1663245977905-2",
+                "lastModified": 1653355528000,
+                "lastModifiedDate": "2022-05-24T01:25:28.000Z",
+                "name": "trained_model.pk",
+                "size": 1043180,
+                "type": "",
+                "percent": 0,
+                "originFileObj": {
+                    "uid": "rc-upload-1663245977905-2"
+                },
+                "error": {
+                    "status": 405,
+                    "method": "post",
+                    "url": ""
+                },
+                "response": "<html>\r\n<head><title>405 Not Allowed</title></head>\r\n<body>\r\n<center><h1>405 Not Allowed</h1></center>\r\n<hr><center>nginx/1.22.0</center>\r\n</body>\r\n</html>\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n",
+                "status": "error"
+            },
+            "fileList": [
+                {
+                    "uid": "rc-upload-1663245977905-2",
+                    "lastModified": 1653355528000,
+                    "lastModifiedDate": "2022-05-24T01:25:28.000Z",
+                    "name": "trained_model.pk",
+                    "size": 1043180,
+                    "type": "",
+                    "percent": 0,
+                    "originFileObj": {
+                        "uid": "rc-upload-1663245977905-2"
+                    },
+                    "error": {
+                        "status": 405,
+                        "method": "post",
+                        "url": ""
+                    },
+                    "response": "<html>\r\n<head><title>405 Not Allowed</title></head>\r\n<body>\r\n<center><h1>405 Not Allowed</h1></center>\r\n<hr><center>nginx/1.22.0</center>\r\n</body>\r\n</html>\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n<!-- a padding to disable MSIE and Chrome friendly error page -->\r\n",
+                    "status": "error"
+                }
+            ]
+        },
+        "completed": true
+    },
+    "stats": {
+        "runs": 0,
+        "feedback": 0
+    },
+    "published": true,
+    "personas": [
+        {
+            "details": {
+                "name": "FTTC planner",
+                "domain_level": "expert",
+                "knowledge_level": "no knowledge"
+            },
+            "completed": false,
+            "intents": [
+                {
+                    "id": "intent-179531",
+                    "name": "Trust",
+                    "completed": false,
+                    "evaluation": {
+                        "questions": [
+                            {
+                                "id": "q-e022fa42-cbff-4e08-aec3-94491100a9fe",
+                                "responseOptions": [
+                                    {
+                                        "val": "Option 1"
+                                    },
+                                    {
+                                        "val": "Option 2"
+                                    }
+                                ],
+                                "content": "why do you think this is the next task ?",
+                                "dimension": "Mental Model",
+                                "responseType": "Free-Text"
+                            },
+                            {
+                                "id": "q-4e43e271-2faf-43d0-b3e8-ecb151fa2093",
+                                "responseOptions": [
+                                    {
+                                        "val": "yes"
+                                    },
+                                    {
+                                        "val": "no"
+                                    }
+                                ],
+                                "dimension": "Mental Model",
+                                "content": "has it helped you in your next task ?",
+                                "responseType": "Likert",
+                                "required": true
+                            }
+                        ]
+                    },
+                    "questions": [
+                        "Which similar cases contributed to this outcome?"
+                    ]
+                },
+                {
+                    "id": "intent-341851",
+                    "name": "Transparency",
+                    "completed": false,
+                    "evaluation": {
+                        "_id": "eval-140061",
+                        "name": "eval",
+                        "questions": []
+                    },
+                    "questions": [
+                        "Which features contributed to this outcome?"
+                    ]
+                },
+                {
+                    "id": "intent-739241",
+                    "name": "Debugging",
+                    "completed": false,
+                    "evaluation": {
+                        "questions": [
+                            {
+                                "id": "q-720060e4-5560-4de0-8a55-81a4441c6e6a",
+                                "responseOptions": [
+                                    {
+                                        "val": "yes"
+                                    },
+                                    {
+                                        "val": "no"
+                                    }
+                                ],
+                                "content": "do you understand why has this recommendation been made ?",
+                                "dimension": "Satisfaction",
+                                "responseType": "Radio",
+                                "required": true
+                            }
+                        ]
+                    },
+                    "questions": [
+                        "Why was this outcome generated?"
+                    ]
+                },
+                {
+                    "id": "intent-413961",
+                    "name": "About",
+                    "completed": false,
+                    "evaluation": {
+                        "_id": "eval-584251",
+                        "name": "eval",
+                        "questions": []
+                    },
+                    "questions": [
+                        "What is the AI model which decided the outcome?",
+                        "What data is this outcome based upon?"
+                    ]
+                }
+            ],
+            "_id": "6323220632f3b8255c1b0358",
+            "personas": [],
+            "createdAt": "2022-09-15T13:00:54.748Z",
+            "updatedAt": "2022-10-18T18:40:28.371Z"
+        }
+    ],
+    "company": "62c2f20bcf76d755dca954ea",
+    "user": "62c2f20bcf76d755dca954ec",
+    "createdAt": "2022-09-15T12:46:12.341Z",
+    "updatedAt": "2022-10-18T18:40:28.372Z",
+    "__v": 5
+}

@@ -28,7 +28,7 @@ html = """
         <script>
             var client_id = Date.now()
             document.querySelector("#ws-id").textContent = client_id;
-            var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+            var ws = new WebSocket(`ws://dialog-dev.isee4xai.com/ws/${client_id}`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -54,14 +54,18 @@ class ConnectionManager():
         self.coordinators: Dict[int, c.Coordinator] = {}
 
     async def connect(self, websocket: WebSocket, client_id: int, usecase_id: str):
+        # if client_id not in self.active_connections:
         await websocket.accept()
         self.active_connections[client_id] = websocket
         self.coordinators[client_id] = c.Coordinator(client_id, usecase_id, self.active_connections[client_id])
+        # else:
+        #     print("Nooooooooooooo--------------------")
 
     def disconnect(self, client_id: int):
         self.active_connections.pop(client_id, None)
 
     async def start(self, client_id):
+        self.coordinators[client_id].reset()
         await self.coordinators[client_id].start()
 
 
@@ -77,7 +81,7 @@ async def get():
 async def websocket_endpoint(websocket: WebSocket, client_id: int):
     await manager.connect(websocket, client_id, "")
     try:
-        while True:
+        # while True:
             await manager.start(client_id)
     except WebSocketDisconnect:
         manager.disconnect(websocket)

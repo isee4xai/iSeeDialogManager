@@ -1,8 +1,9 @@
 from business.bt.nodes.action import ActionNode, Succeder, Failer, GreeterNode, InitialiserNode, KnowledgeQuestionNode
-from business.bt.nodes.action import QuestionNode, NeedQuestionNode, PersonaQuestionNode, ExplainerNode
+from business.bt.nodes.action import QuestionNode, NeedQuestionNode, PersonaQuestionNode, ExplainerNode, MultipleChoiceQuestionNode
+from business.bt.nodes.action import ConfirmNode 
 from business.bt.nodes.modifier import UsecaseModifierNode, WorldModifierNode
 from business.bt.nodes.condition import ConditionNode, EqualNode
-from business.bt.nodes.composite import SequenceNode, PriorityNode, StrategyNode
+from business.bt.nodes.composite import SequenceNode, PriorityNode, EvaluationStrategyNode, ExplanationStrategyNode
 from business.bt.nodes.decorator import LimitActivationNode, RepeatNode, RepTillFailNode, RepTillSuccNode, InverterNode
 from business.bt.nodes.node import Node
 
@@ -20,6 +21,8 @@ def makeNode(type, id, label):
         res = Failer(id)
     elif type == "Question":
         res = QuestionNode(id)
+    elif type == "Multiple Choice Question":
+        res = MultipleChoiceQuestionNode(id)
     elif type == "Succeeder":
         res = Succeder(id)
     elif type == "Explanation Method":
@@ -34,6 +37,8 @@ def makeNode(type, id, label):
         res = InitialiserNode(id)
     elif type == "Greeter":
         res = GreeterNode(id)
+    elif type == "Confirm Question":
+        res = ConfirmNode(id)
 
     elif type == "Condition":
         res = ConditionNode(id)
@@ -44,8 +49,10 @@ def makeNode(type, id, label):
         res = PriorityNode(id)
     elif type == "Sequence":
         res = SequenceNode(id)
-    elif type == "Strategy":
-        res = StrategyNode(id)
+    elif type == "Evaluation Strategy":
+        res = EvaluationStrategyNode(id)
+    elif type == "Explanation Strategy":
+        res = ExplanationStrategyNode(id)
 
     elif type == "RepeatUntilFailure":
         res = RepTillFailNode(id)
@@ -59,7 +66,6 @@ def makeNode(type, id, label):
         res = RepeatNode(id)
 
     else:
-        print(type, id, label)
-        print("no type")
+        print("no type", type, id, label)
 
     return res

@@ -82,15 +82,6 @@
     {
       "version": "0.1.0",
       "scope": "node",
-      "Concept": "Explaination Strategy",
-      "category": "action",
-      "title": "Explaination Strategy",
-      "description": null,
-      "properties": {}
-    },
-    {
-      "version": "0.1.0",
-      "scope": "node",
       "Concept": "Strategy",
       "category": "composite",
       "title": "Strategy",
@@ -100,18 +91,45 @@
     {
       "version": "0.1.0",
       "scope": "node",
-      "Concept": "Evaluation",
+      "Concept": "Persona Question",
       "category": "action",
-      "title": "Evaluation",
+      "title": "Persona Question",
       "description": null,
       "properties": {}
     },
     {
       "version": "0.1.0",
       "scope": "node",
-      "Concept": "Persona Question",
+      "Concept": "Navigator",
       "category": "action",
-      "title": "Persona Question",
+      "title": "Navigator",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Explanation Strategy",
+      "category": "composite",
+      "title": "Explanation Strategy",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Evaluation Strategy",
+      "category": "composite",
+      "title": "Evaluation Strategy",
+      "description": null,
+      "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Confirm Question",
+      "category": "action",
+      "title": "Confirm Question",
       "description": null,
       "properties": {}
     }
@@ -135,7 +153,10 @@
             "Id": "6a99c7e8-df44-4a53-8006-bbd831f11b67",
             "Next": {
               "Id": "1633b6e6-c578-4347-9649-6c6de19d6bf8",
-              "Next": null
+              "Next": {
+                "Id": "d1d86bff-86f7-4229-82eb-a42f397099f5",
+                "Next": null
+              }
             }
           }
         }
@@ -276,7 +297,7 @@
         "Next": {
           "Id": "51db427b-92ca-40f5-bb8b-7396778ac985",
           "Next": {
-            "Id": "e8b9ca79-05cb-4a23-99c6-0fd438a7e830",
+            "Id": "73a09eca-be32-43ce-85ff-f5611e4ce129",
             "Next": null
           }
         }
@@ -423,27 +444,14 @@
         "y": 828
       }
     },
-    "e8b9ca79-05cb-4a23-99c6-0fd438a7e830": {
-      "id": "e8b9ca79-05cb-4a23-99c6-0fd438a7e830",
-      "Concept": "Strategy",
-      "Instance": "Strategy",
-      "description": "",
-      "properties": {},
-      "display": {
-        "x": 1212,
-        "y": 600
-      },
-      "firstChild": {
-        "Id": "d4c48b73-1d1d-40c3-8049-289032dff383",
-        "Next": null
-      }
-    },
     "18704e1a-d968-471b-ba78-9b1ac46fcb2b": {
       "id": "18704e1a-d968-471b-ba78-9b1ac46fcb2b",
       "Concept": "Equal",
       "Instance": "if evaluation incomplete",
       "description": "",
-      "properties": {},
+      "properties": {
+        "evaluation": "False"
+      },
       "display": {
         "x": 1296,
         "y": 420
@@ -462,10 +470,13 @@
       "firstChild": {
         "Id": "18704e1a-d968-471b-ba78-9b1ac46fcb2b",
         "Next": {
-          "Id": "0832ca50-5a16-4528-bc3e-2bb21b3cdcb2",
+          "Id": "1582ff0f-11de-47d4-a639-d6b34c6ec2cd",
           "Next": {
-            "Id": "25aa331e-dcf7-4764-8885-cf0079628f0d",
-            "Next": null
+            "Id": "b248351d-fd85-42a4-88d4-b1421e7ee72f",
+            "Next": {
+              "Id": "25aa331e-dcf7-4764-8885-cf0079628f0d",
+              "Next": null
+            }
           }
         }
       }
@@ -487,62 +498,120 @@
         "Next": null
       }
     },
-    "0832ca50-5a16-4528-bc3e-2bb21b3cdcb2": {
-      "id": "0832ca50-5a16-4528-bc3e-2bb21b3cdcb2",
-      "Concept": "Evaluation",
-      "Instance": "Evaluation",
-      "description": "",
-      "properties": {},
-      "display": {
-        "x": 1488,
-        "y": 420
-      }
-    },
     "25aa331e-dcf7-4764-8885-cf0079628f0d": {
       "id": "25aa331e-dcf7-4764-8885-cf0079628f0d",
       "Concept": "World Modifier",
       "Instance": "Set evaluation complete",
       "description": "",
-      "properties": {},
+      "properties": {
+        "evaluation": "True"
+      },
       "display": {
-        "x": 1692,
+        "x": 1884,
         "y": 420
       }
     },
-    "d4c48b73-1d1d-40c3-8049-289032dff383": {
-      "id": "d4c48b73-1d1d-40c3-8049-289032dff383",
+    "b248351d-fd85-42a4-88d4-b1421e7ee72f": {
+      "id": "b248351d-fd85-42a4-88d4-b1421e7ee72f",
+      "Concept": "Evaluation Strategy",
+      "Instance": "Evaluation Strategy",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 1680,
+        "y": 420
+      }
+    },
+    "d1d86bff-86f7-4229-82eb-a42f397099f5": {
+      "id": "d1d86bff-86f7-4229-82eb-a42f397099f5",
       "Concept": "Sequence",
       "Instance": "Sequence",
       "description": "",
       "properties": {},
       "display": {
-        "x": 1212,
-        "y": 696
+        "x": 2340,
+        "y": 324
       },
       "firstChild": {
-        "Id": "b4874bfa-bab4-4560-86a8-20a3c7f04379",
-        "Next": null
+        "Id": "ab66c567-9732-41c4-893c-6eaf16e680a7",
+        "Next": {
+          "Id": "fab22d47-135a-44c1-a0b7-d191f391e26d",
+          "Next": {
+            "Id": "b2e737d5-fbff-4fa4-8360-5cee49d67986",
+            "Next": null
+          }
+        }
       }
     },
-    "b4874bfa-bab4-4560-86a8-20a3c7f04379": {
-      "id": "b4874bfa-bab4-4560-86a8-20a3c7f04379",
-      "Concept": "Explanation Method",
-      "Instance": "/Tabular/TreeSHAPGlobal",
+    "ab66c567-9732-41c4-893c-6eaf16e680a7": {
+      "id": "ab66c567-9732-41c4-893c-6eaf16e680a7",
+      "Concept": "Equal",
+      "Instance": "is complete",
+      "description": "",
+      "properties": {
+        "complete": "False"
+      },
+      "display": {
+        "x": 2172,
+        "y": 432
+      }
+    },
+    "fab22d47-135a-44c1-a0b7-d191f391e26d": {
+      "id": "fab22d47-135a-44c1-a0b7-d191f391e26d",
+      "Concept": "Greeter",
+      "Instance": "Complete",
+      "description": "",
+      "properties": {
+        "variable": "complete_response"
+      },
+      "display": {
+        "x": 2340,
+        "y": 432
+      }
+    },
+    "b2e737d5-fbff-4fa4-8360-5cee49d67986": {
+      "id": "b2e737d5-fbff-4fa4-8360-5cee49d67986",
+      "Concept": "World Modifier",
+      "Instance": "Set complete",
+      "description": "",
+      "properties": {
+        "complete": "True"
+      },
+      "display": {
+        "x": 2508,
+        "y": 432
+      }
+    },
+    "73a09eca-be32-43ce-85ff-f5611e4ce129": {
+      "id": "73a09eca-be32-43ce-85ff-f5611e4ce129",
+      "Concept": "Explanation Strategy",
+      "Instance": "Explanation Strategy",
       "description": "",
       "properties": {},
       "display": {
-        "x": 1224,
-        "y": 828
+        "x": 1212,
+        "y": 612
+      }
+    },
+    "1582ff0f-11de-47d4-a639-d6b34c6ec2cd": {
+      "id": "1582ff0f-11de-47d4-a639-d6b34c6ec2cd",
+      "Concept": "Confirm Question",
+      "Instance": "Evaluate",
+      "description": "",
+      "properties": {
+        "question": "Would you like to answer a questionnaire to evaluate your experience with iSee?",
+        "variable": "evaluate_proceed"
       },
-      "params": {
-        "output_index": ""
+      "display": {
+        "x": 1488,
+        "y": 420
       }
     }
   },
   "display": {
-    "camera_x": -163.9999998807907,
-    "camera_y": 4.199999988079071,
-    "camera_z": 0.75,
+    "camera_x": 101.00000181794167,
+    "camera_y": 233.10000005364418,
+    "camera_z": 0.5,
     "x": -12,
     "y": -192
   }
