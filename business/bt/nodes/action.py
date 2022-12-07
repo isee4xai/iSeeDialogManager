@@ -141,13 +141,13 @@ class GreeterNode(QuestionNode):
 
             q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
             q.responseOptions = None
-            print(q.responseType)
+            # print(q.responseType)
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
             await self.co.send_and_receive(_question, self.variable)
 
             proceed_response = json.loads(self.co.check_world(self.variable))
-            print(proceed_response)
+            # print(proceed_response)
 
             # while not self.sentiment.is_positive(proceed_response.lower()):
             while not proceed_response[0]["content"].lower() == "yes":
@@ -259,7 +259,7 @@ class NeedQuestionNode(QuestionNode):
         # user response
         # TODO get question from user response
         _selected_question = json.loads(self.co.check_world(self.variable))
-        print(_selected_question)
+        # print(_selected_question)
         self.co.modify_usecase(self.variable, _selected_question["id"])
         self.co.modify_intent()
         self.co.modify_evaluation()
@@ -288,7 +288,7 @@ class PersonaQuestionNode(QuestionNode):
         # user response
         # TODO get persona from user response
         _selected_persona = json.loads(self.co.check_world(self.variable))
-        print(_selected_persona)
+        # print(_selected_persona)
         self.co.modify_usecase(self.variable, _selected_persona["id"])
         self.co.modify_strategy()
         self.status = State.SUCCESS
@@ -310,7 +310,7 @@ class MultipleChoiceQuestionNode(QuestionNode):
                 + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        print(self.options)
+        # print(self.options)
         q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response(k,v) for k,v in self.options.items()]
 
@@ -336,7 +336,7 @@ class ExplainerNode(node.Node):
 
     async def tick(self):
         
-        print(self.label, self.params)
+        # print(self.label, self.params)
         # r = self.co.request_external(, self.label, params = {})
 
         self.status = State.SUCCESS

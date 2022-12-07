@@ -267,7 +267,7 @@ class Usecase:
                 q_node.variable = q_id
                 q_node.co = self.co
                 _options = q["http://www.w3id.org/iSeeOnto/userevaluation#hasResponseOptions"]["http://semanticscience.org/resource/SIO_000974"]
-                print(_options)
+                # print(_options)
                 q_node.options = {_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pairKey"]:_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pair_value_literal"] for _o in _options}
                 eval_strategy_node.children.append(q_node)
 
