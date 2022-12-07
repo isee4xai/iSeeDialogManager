@@ -6,20 +6,25 @@ import ui.interface as interface
 import json
 import business.api as api
 
+
 class Coordinator:
 
-    def __init__(self, client_id, usecase_id, socket) -> None:
+    def __init__(self, client_id, socket) -> None:
         self.client_id = client_id
-        self.usecase_id = usecase_id
         self.interface = interface.WebSocket(socket)
         self.world = storage.World()
-        
+
         self.logger = logger.Logger()
-        
-        
-        self.usecase = storage.Usecase(usecase_id, self)
-        self.ontology = storage.Ontology()
+        self.ontology = storage.Ontology(self)
         self.bt = bt.BehaviourTree(self)
+
+    def init(self, j_data):
+        self.world.store("user_token", j_data["user"]["token"])
+        self.world.store("usecase_id", j_data["usecase_id"])
+        self.world.store("user_name", j_data["user"]["name"])
+        # self.user = storage.User(j_data["user"], self)
+        self.usecase = storage.Usecase(j_data["usecase_id"], self)
+        self.world
 
     async def start(self):
         await self.bt.run()
@@ -69,12 +74,18 @@ class Coordinator:
     def log(self, message):
         self.logger.log(message)
 
-    def call_api(self, base_url, id, params):
-        return api.request(base_url+"/"+id, params)
+    def get_api(self, url, params):
+        return api.request(url, params, {})
+
+    def get_secure_api(self, url, params):
+        headers = {
+            "Content-Type": "application/json",
+            "x-access-token": self.world.storage.get("user_token")
+        }
+        return api.request(url, params, headers)
 
     def reset(self):
         self.world = storage.World()
         self.logger = logger.Logger()
-        self.usecase = storage.Usecase(self.usecase_id, self)
-        self.ontology = storage.Ontology()
+        self.ontology = storage.Ontology(self)
         self.bt = bt.BehaviourTree(self)

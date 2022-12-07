@@ -50,22 +50,20 @@ html = """
 
 class ConnectionManager():
     def __init__(self):
-        self.active_connections: Dict[int, WebSocket] = {}
-        self.coordinators: Dict[int, c.Coordinator] = {}
+        self.active_connections: Dict[str, WebSocket] = {}
+        self.coordinators: Dict[str, c.Coordinator] = {}
 
-    async def connect(self, websocket: WebSocket, client_id: int, usecase_id: str):
-        # if client_id not in self.active_connections:
+    async def connect(self, websocket: WebSocket, client_id: str):
         await websocket.accept()
         self.active_connections[client_id] = websocket
-        self.coordinators[client_id] = c.Coordinator(client_id, usecase_id, self.active_connections[client_id])
-        # else:
-        #     print("Nooooooooooooo--------------------")
+        self.coordinators[client_id] = c.Coordinator(client_id, self.active_connections[client_id])
 
-    def disconnect(self, client_id: int):
+    def disconnect(self, client_id: str):
         self.active_connections.pop(client_id, None)
 
-    async def start(self, client_id):
+    async def start(self, client_id: str, init_data: object):
         self.coordinators[client_id].reset()
+        self.coordinators[client_id].init(init_data)
         await self.coordinators[client_id].start()
 
 
@@ -78,11 +76,11 @@ async def get():
 
 
 @app.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
-    await manager.connect(websocket, client_id, "")
+async def websocket_endpoint(websocket: WebSocket, client_id: str):
+    await manager.connect(websocket, client_id)
     try:
-        # while True:
-            await manager.start(client_id)
+            init_data = await websocket.receive_json()
+            await manager.start(client_id, init_data)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 

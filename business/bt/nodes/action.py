@@ -96,7 +96,7 @@ class ConfirmNode(QuestionNode):
         return ("CONFIRM "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.OPEN, True)
+        q = s.Question(self.id, self.question, s.ResponseType.OPEN.value, True)
         q.responseOptions = None
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
@@ -130,7 +130,7 @@ class GreeterNode(QuestionNode):
         currentTime = datetime.datetime.now()
         time_of_day = 0 if currentTime.hour < 12 else 1 if 12 <= currentTime.hour < 18 else 2
 
-        end_user_name = self.co.check_world("end_user_name")
+        end_user_name = self.co.check_world("user_name")
         usecase_name = self.co.check_usecase("usecase_name")
 
         
@@ -139,8 +139,9 @@ class GreeterNode(QuestionNode):
             _question = _question + "I am the iSee Chatbot for the " + usecase_name + ", "
             _question = _question + "Would you like to proceed?"
 
-            q = s.Question(self.id, _question, s.ResponseType.OPEN, True)
+            q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
             q.responseOptions = None
+            print(q.responseType)
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
             await self.co.send_and_receive(_question, self.variable)
@@ -151,7 +152,7 @@ class GreeterNode(QuestionNode):
             # while not self.sentiment.is_positive(proceed_response.lower()):
             while not proceed_response[0]["content"].lower() == "yes":
                 _question = "Would you like to proceed?"
-                q = s.Question(self.id, _question, s.ResponseType.OPEN, True)
+                q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
                 q.responseOptions = None
                 _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
                 await self.co.send_and_receive(_question, self.variable)
@@ -160,7 +161,7 @@ class GreeterNode(QuestionNode):
             _question = "Thank you for using iSee!" +"\n"
             _question = _question + "See you again soon!"
 
-            q = s.Question(self.id, _question, s.ResponseType.INFO, False)
+            q = s.Question(self.id, _question, s.ResponseType.INFO.value, False)
             q.responseOptions = None
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
@@ -249,7 +250,7 @@ class NeedQuestionNode(QuestionNode):
                 + str(self.variable) + " " + str(self.question_data))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.RADIO, True)
+        q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         questions = self.co.get_questions()
         q.responseOptions = [s.Response(k, q) for k, q in questions.items()]
 
@@ -278,7 +279,7 @@ class PersonaQuestionNode(QuestionNode):
         return "PERSONA " + str(self.status) + " " + str(self.id) + " " + str(self.question)
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.RADIO, True)
+        q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         personas = self.co.get_personas()
         q.responseOptions = [s.Response(p, html.persona(personas[p])) for p in personas]
 
@@ -309,8 +310,9 @@ class MultipleChoiceQuestionNode(QuestionNode):
                 + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.RADIO, True)
-        q.responseOptions = [s.Response(v,v) for v in self.options]
+        print(self.options)
+        q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
+        q.responseOptions = [s.Response(k,v) for k,v in self.options.items()]
 
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
@@ -354,7 +356,7 @@ class EvaluationQuestionNode(node.Node):
         return ("EVALUATION "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.OPEN, True)
+        q = s.Question(self.id, self.question, s.ResponseType.OPEN.value, True)
         q.responseOptions = None
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
