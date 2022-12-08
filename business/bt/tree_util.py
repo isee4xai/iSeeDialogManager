@@ -90,7 +90,7 @@ def generate_tree(parser, co):
 
         if parser.bt_nodes[n]["Concept"] == "Explanation Method":
             nodes.get(n).params = parser.bt_nodes[n]["params"]
-            nodes.get(n).label = parser.bt_nodes[node_id]["Instance"]
+            nodes.get(n).endpoint = parser.bt_nodes[node_id]["Instance"]
 
     root_id = parser.bt_root
     root = node.RootNode('0')

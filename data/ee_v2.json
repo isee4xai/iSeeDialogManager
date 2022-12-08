@@ -584,13 +584,18 @@
     },
     "73a09eca-be32-43ce-85ff-f5611e4ce129": {
       "id": "73a09eca-be32-43ce-85ff-f5611e4ce129",
-      "Concept": "Explanation Strategy",
-      "Instance": "Explanation Strategy",
+      "Concept": "Explanation Method",
+      "Instance": "/Tabular/LIME",
       "description": "",
       "properties": {},
       "display": {
         "x": 1212,
         "y": 612
+      },
+      "params": {
+        "output_classes": "",
+        "top_classes": "",
+        "num_features": "5"
       }
     },
     "1582ff0f-11de-47d4-a639-d6b34c6ec2cd": {

@@ -329,12 +329,23 @@ class ExplainerNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
         self.params = None
-        self.label = None
+        self.endpoint = None
 
     def toString(self):
         return ("EXPLAINER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
+
+        #have the endpoint
+        # from the case structure take the AIMOdel id /url
+        #have aimodel id as well
+        #get data instances length
+        #randomly select one
+        #get the random data instance
+        
+        # make the call to LIME explainer
+
+        #show what ever you get in a Question
         
         # print(self.label, self.params)
         # r = self.co.request_external(, self.label, params = {})
