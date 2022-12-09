@@ -381,11 +381,24 @@ class TargetQuestionNode(QuestionNode):
         ai_model_query = {
             "instance":random_instance['instance']
         }
+
+        instance_json = random_instance["json"]
+        #TODO meta_data = self.co.check_usecase("ai_model_meta")
+        meta_data = '{\"target_names\":[\"loan_status\"],\"target_values\":[\"Rejected\",\"Accepted\"],\"features\":[{\"id\":\"loan_amnt\",\"min\":1000,\"max\":40000},{\"id\":\"total_pymnt\",\"min\":41.62,\"max\":44881.66051},{\"id\":\"total_rec_int\",\"min\":0,\"max\":7036.9},{\"id\":\"term\",\"values\":[\"36 months\",\"60 months\"]},{\"id\":\"int_rate\",\"min\":5.31,\"max\":30.79},{\"id\":\"installment\",\"min\":32.47,\"max\":1474.75},{\"id\":\"home_ownership\",\"values\":[\"Rent\",\"Own\",\"Mortgage\",\"Any\"]},{\"id\":\"annual_inc\",\"min\":3600,\"max\":700000},{\"id\":\"verification_status\",\"values\":[\"Source Verified\",\"Not Verified\",\"Verified\"]},{\"id\":\"loan_status\",\"values\":[\"Rejected\",\"Accepted\"]},{\"id\":\"purpose\",\"values\":[\"major purchase\",\"other\",\"home improvement\",\"debt consolidation\",\"house\",\"credit card\",\"car\",\"medical\",\"vacation\",\"small business\",\"moving\",\"renewable energy\"]}]}'
+        meta_data = json.loads(meta_data)
+
+        features = meta_data["features"]
+        for item in [f for f in features if "values" in f and f["id"] not in meta_data["target_names"]]:
+            instance_json[item["id"]] = item["values"][int(instance_json[item["id"]])]
+        for item in [f for f in features if "max" in f and f["id"] not in meta_data["target_names"]]:
+            instance_json[item["id"]] = round(float(instance_json[item["id"]])*float(item["max"]), 2)
+
         ai_model_result = self.co.get_secure_api_post("/predictResponse", ai_model_query)
 
-        df_json = pd.json_normalize(json.loads(json.dumps(random_instance["json"], indent=4)))
+        df_json = pd.json_normalize(json.loads(json.dumps(instance_json, indent=4)))
         outcome_json = pd.json_normalize(json.loads(json.dumps(ai_model_result, indent=4)))
-        _question = '<p>Here is your loan application</p>'+html.target(df_json)+'<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
+        _question = '<p>Here is your loan application</p>'+html.target(df_json)
+        _question += '<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
 
         q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
         q.responseOptions = None

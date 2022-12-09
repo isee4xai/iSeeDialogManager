@@ -12,6 +12,6 @@ def target(df):
     return st
 
 def explanation(explainer_result, output_description):
-    st ='<a href=\"'+explainer_result["plot_png"]+'\" target=\"_blank\"><img src=\"'+explainer_result["plot_png"]+'\"style=\" width: 600px; \"></a>'
+    st ='<a href=\"'+explainer_result["plot_png"]+'\" target=\"_blank\"><img src=\"'+explainer_result["plot_png"]+'\"style=\" width:80%; \"></a>'
     st +='<p><strong>Explanation Description:</strong> <br>'+output_description+'</p>'
     return st

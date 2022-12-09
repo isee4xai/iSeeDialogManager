@@ -122,7 +122,6 @@ class Usecase:
             # self.store(
             #     "ai_model_id", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["hasModelId"]["value"])
            
-            # Question: Can we get this inside the explainer node?
             self.store(
                 "ai_model_meta", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#hasCaseStructureMetaData"]["value"])
 
