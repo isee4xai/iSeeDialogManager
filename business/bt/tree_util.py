@@ -60,7 +60,8 @@ def generate_tree(parser, co):
                 or parser.bt_nodes[n]["Concept"] == "Need Question"
                 or parser.bt_nodes[n]["Concept"] == "Persona Question"
                 or parser.bt_nodes[n]["Concept"] == "Knowledge Question"
-                or parser.bt_nodes[n]["Concept"] == "Confirm Question"):
+                or parser.bt_nodes[n]["Concept"] == "Confirm Question"
+                or parser.bt_nodes[n]["Concept"] == "Target Question"):
             nodes.get(n).question = parser.bt_nodes[n]["properties"]["question"]
             nodes.get(n).variable = parser.bt_nodes[n]["properties"]["variable"]
 

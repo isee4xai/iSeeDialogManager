@@ -5,7 +5,7 @@ import datetime
 import json
 import business.storage as s
 import business.bt.nodes.html_format as html
-
+import pandas as pd
 class ActionNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
@@ -185,8 +185,8 @@ class InitialiserNode(ActionNode):
 
     async def tick(self):
         # get end user name and use case they are attached to from login
-        self.co.modify_world("end_user_name", "Major Lee Adama")
-        self.co.modify_world("use_case_id", "63231e9432f3b8255c1b0346")
+        # self.co.modify_world("end_user_name", "Major Lee Adama")
+        # self.co.modify_world("use_case_id", "63231e9432f3b8255c1b0346")
 
         # TODO use GET /usecases/:id
         # with open("data/63231e9432f3b8255c1b0346.json", 'r') as usecase_file:
@@ -337,33 +337,63 @@ class ExplainerNode(node.Node):
 
     async def tick(self):
 
-        random_instance = self.co.get_secure_api("/sampleDataInstance", {})
+        random_instance = self.co.check_world("selected_target")
 
-        # TODO: Update LIME to be taken from the AI Meta
         explainer_query = {
             "instance":random_instance ,
             "method": "/Tabular/LIME",
             # "params": self.params -> TODO: Needs Validation
         }
 
-        # make the call to LIME explainer
         explainer_result = self.co.get_secure_api_post("/explainerResponse", explainer_query)
 
-        # print(explainer_result)
         output_description = ""
-
+        # only needs a specific description, for now will take the last one
         for o in explainer_result["meta"]["output_description"]:
-            output_description += "<strong>"+o+": </strong><br>"+explainer_result["meta"]["output_description"][o]
+            output_description = explainer_result["meta"]["output_description"][o]
 
-        build_response = '<p>Here is a sample explanation: <br> <a href="'+explainer_result["plot_png"]+'" target="_blank"><img src="'+explainer_result["plot_png"]+\
-                         '" style=" width: 600px; "></a> </p>'+\
-                         '<p>Output Description: <br> '+output_description+'</p>'
+        _question = '<p>Here is an explanation from LIME Explainability Technique</p>'
+        _question += html.explanation(explainer_result, output_description)
 
-        q = s.Question(self.id,build_response , s.ResponseType.OPEN.value, True)
+        q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
         q.responseOptions = None
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
 
+        self.status = State.SUCCESS
+        return self.status
+
+    def reset(self):
+        if (self.status == State.SUCCESS):
+            self.status = State.FAILURE
+
+
+class TargetQuestionNode(QuestionNode):
+    def __init__(self, id) -> None:
+        super().__init__(id)
+
+    def toString(self):
+        return ("TARGET "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
+
+    async def tick(self):
+        random_instance = self.co.get_secure_api("/sampleDataInstance", {})
+        
+        ai_model_query = {
+            "instance":random_instance['instance']
+        }
+        ai_model_result = self.co.get_secure_api_post("/predictResponse", ai_model_query)
+
+        df_json = pd.json_normalize(json.loads(json.dumps(random_instance["json"], indent=4)))
+        outcome_json = pd.json_normalize(json.loads(json.dumps(ai_model_result, indent=4)))
+        _question = '<p>Here is your loan application</p>'+html.target(df_json)+'<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
+
+        q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
+        q.responseOptions = None
+        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+        await self.co.send_and_receive(_question, self.variable)
+
+        self.co.modify_world(self.variable, random_instance['instance'])
+        
         self.status = State.SUCCESS
         return self.status
 
