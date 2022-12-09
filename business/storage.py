@@ -100,7 +100,7 @@ class Usecase:
     def __init__(self, usecase_id, co) -> None:
         self.storage = {}
         self.co = co
-        self.json = self.co.get_secure_api("https://api-dev.isee4xai.com/api/usecases/"+usecase_id+"/casestructure", {})
+        self.json = self.co.get_secure_api("/casestructure", {})
         # {persona_id: properties{}}
         self.personas = {}
         # {persona_id: intents[]}
@@ -121,8 +121,10 @@ class Usecase:
             self.store("usecase_name", " ".join(case["http://www.w3.org/2000/01/rdf-schema#comment"].split("_")))
             # self.store(
             #     "ai_model_id", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["hasModelId"]["value"])
-            # self.store(
-            #     "ai_model_url", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["hasModelURL"]["value"])
+           
+            # Question: Can we get this inside the explainer node?
+            self.store(
+                "ai_model_meta", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#hasCaseStructureMetaData"]["value"])
 
             persona_id = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["instance"]
             ai_knowledge = [item["http://www.w3id.org/iSeeOnto/user#levelOfKnowledge"]["instance"] for item in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]

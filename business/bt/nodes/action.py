@@ -118,7 +118,7 @@ class ConfirmNode(QuestionNode):
 class GreeterNode(QuestionNode):
     def __init__(self, id) -> None:
         super().__init__(id)
-        self.greet_text = {0: "Good Morning",
+        self.greet_text = {0: "Good Morning ☀️",
                            1: "Good Afternoon",
                            2: "Good Evening"}
         # self.sentiment = SentimentAnalyser()
@@ -330,25 +330,39 @@ class ExplainerNode(node.Node):
         super().__init__(id)
         self.params = None
         self.endpoint = None
+        self.variable = None
 
     def toString(self):
         return ("EXPLAINER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
 
-        #have the endpoint
-        # from the case structure take the AIMOdel id /url
-        #have aimodel id as well
-        #get data instances length
-        #randomly select one
-        #get the random data instance
-        
-        # make the call to LIME explainer
+        random_instance = self.co.get_secure_api("/sampleDataInstance", {})
 
-        #show what ever you get in a Question
-        
-        # print(self.label, self.params)
-        # r = self.co.request_external(, self.label, params = {})
+        # TODO: Update LIME to be taken from the AI Meta
+        explainer_query = {
+            "instance":random_instance ,
+            "method": "/Tabular/LIME",
+            # "params": self.params -> TODO: Needs Validation
+        }
+
+        # make the call to LIME explainer
+        explainer_result = self.co.get_secure_api_post("/explainerResponse", explainer_query)
+
+        # print(explainer_result)
+        output_description = ""
+
+        for o in explainer_result["meta"]["output_description"]:
+            output_description += "<strong>"+o+": </strong><br>"+explainer_result["meta"]["output_description"][o]
+
+        build_response = '<p>Here is a sample explanation: <br> <a href="'+explainer_result["plot_png"]+'" target="_blank"><img src="'+explainer_result["plot_png"]+\
+                         '" style=" width: 600px; "></a> </p>'+\
+                         '<p>Output Description: <br> '+output_description+'</p>'
+
+        q = s.Question(self.id,build_response , s.ResponseType.OPEN.value, True)
+        q.responseOptions = None
+        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+        await self.co.send_and_receive(_question, self.variable)
 
         self.status = State.SUCCESS
         return self.status

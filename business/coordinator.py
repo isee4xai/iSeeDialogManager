@@ -6,7 +6,8 @@ import ui.interface as interface
 import json
 import business.api as api
 
-
+# API_BASE = "http://localhost:3000/api/"
+API_BASE = "https://api-dev.isee4xai.com/api/"
 class Coordinator:
 
     def __init__(self, client_id, socket) -> None:
@@ -77,12 +78,23 @@ class Coordinator:
     def get_api(self, url, params):
         return api.request(url, params, {})
 
-    def get_secure_api(self, url, params):
+    def get_secure_api(self, path, params):
         headers = {
             "Content-Type": "application/json",
             "x-access-token": self.world.storage.get("user_token")
         }
+
+        url = API_BASE +"usecases/" + self.world.get("usecase_id") + path
+
         return api.request(url, params, headers)
+
+    def get_secure_api_post(self, path, body):
+        headers = {
+            "Content-Type": "application/json",
+            "x-access-token": self.world.storage.get("user_token")
+        }
+        url = API_BASE +"usecases/" + self.world.get("usecase_id") + path
+        return api.requestPOST(url, body, headers)
 
     def reset(self):
         self.world = storage.World()
