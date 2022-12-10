@@ -179,7 +179,7 @@ class Usecase:
             else:
                 temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
                         if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
-                intent_strategy_tree = tg.generate_tree_from_obj(temp, None)
+                intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
                 intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
 
                 condition_node = node_factory.makeNode("Equal", intent, intent)
@@ -194,7 +194,7 @@ class Usecase:
                 sequence_node.co = self.co
 
                 exstrgy_node = node_factory.makeNode(
-                    "Sequence", "ExplanationStrategy", "ExplanationStrategy")
+                    "Priority", "ExplanationStrategy", "ExplanationStrategy")
                 exstrgy_node.children.append(sequence_node)
                 exstrgy_node.co = self.co
 

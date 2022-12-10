@@ -60,9 +60,8 @@ class Coordinator:
 
     def modify_strategy(self):
         # plug explanation strategy
-        # new_exp_strategy = self.usecase.get_persona_explanation_strategy()
-        # self.bt.plug_strategy(new_exp_strategy, "Explanation Strategy")
-        None
+        new_exp_strategy = self.usecase.get_persona_explanation_strategy()
+        self.bt.plug_strategy(new_exp_strategy, "Explanation Strategy")
 
     def modify_intent(self):
         self.usecase.modify_intent()

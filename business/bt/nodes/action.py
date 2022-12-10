@@ -333,7 +333,7 @@ class ExplainerNode(node.Node):
         self.variable = None
 
     def toString(self):
-        return ("EXPLAINER "+str(self.status) + " " + str(self.id))
+        return ("EXPLAINER "+ str(self.status) + " " + str(self.id) + " " + str(self.endpoint) + " " + str(self.co))
 
     async def tick(self):
 
@@ -341,7 +341,7 @@ class ExplainerNode(node.Node):
 
         explainer_query = {
             "instance":random_instance ,
-            "method": "/Tabular/LIME",
+            "method": self.endpoint,
             # "params": self.params -> TODO: Needs Validation
         }
 
