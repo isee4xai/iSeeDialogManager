@@ -9,7 +9,7 @@ class BehaviourTree:
 
 	def __init__(self, co):
 
-		self.tree = tg.generate_tree_from_file("data/test.json", co)
+		self.tree = tg.generate_tree_from_file("data/ee_demo.json", co)
 		tg.printTree(self.tree.root)
 
 		self.logger = logger.Logger()
