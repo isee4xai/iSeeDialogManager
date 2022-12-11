@@ -338,7 +338,6 @@ class ExplainerNode(node.Node):
     async def tick(self):
 
         random_instance = self.co.check_world("selected_target")
-
         explainer_query = {
             "instance":random_instance ,
             "method": self.endpoint,
@@ -352,8 +351,14 @@ class ExplainerNode(node.Node):
         for o in explainer_result["meta"]["output_description"]:
             output_description = explainer_result["meta"]["output_description"][o]
 
-        _question = '<p>Here is an explanation from LIME Explainability Technique</p>'
-        _question += html.explanation(explainer_result, output_description)
+        if self.endpoint == '/Tabular/LIME':
+            _question = '<p>Here is an explanation from LIME Explainability Technique</p>'
+            _question += html.lime_explanation(explainer_result, output_description)
+
+        elif self.endpoint == '/Tabular/DisCERN':
+            _question = '<p>Here is an explanation from DisCERN Explainability Technique</p>'
+            output_description = "A table showing the original data instance and a counterfactual (similar instance with minor changes for which the AI system predicts a different outcome)."
+            _question += html.discern_explanation(random_instance, explainer_result, output_description)
 
         q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
         q.responseOptions = None
