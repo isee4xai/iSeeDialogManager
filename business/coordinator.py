@@ -4,10 +4,11 @@ import business.bt.bt as bt
 import ui.logger as logger
 import ui.interface as interface
 import json
+from ml.nlp import SentimentAnalyser
 import business.api as api
 
-# API_BASE = "http://localhost:3000/api/"
 API_BASE = "https://api-dev.isee4xai.com/api/"
+
 class Coordinator:
 
     def __init__(self, client_id, socket) -> None:
@@ -19,6 +20,7 @@ class Coordinator:
         self.logger = logger.Logger()
         self.ontology = storage.Ontology(self)
         self.bt = bt.BehaviourTree(self)
+        self.sentiment = SentimentAnalyser.get()
 
     def init(self, j_data):
         self.world.store("user_token", j_data["user"]["token"])
@@ -106,3 +108,6 @@ class Coordinator:
 
     def save_conversation(self):
         print(self.history)
+
+    def is_positive(self, value):
+        return self.sentiment.is_positive(value)
