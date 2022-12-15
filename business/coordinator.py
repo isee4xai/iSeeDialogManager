@@ -12,6 +12,7 @@ class Coordinator:
 
     def __init__(self, client_id, socket) -> None:
         self.client_id = client_id
+        self.history = []
         self.interface = interface.WebSocket(socket)
         self.world = storage.World()
 
@@ -34,7 +35,9 @@ class Coordinator:
         await self.interface.send(message)
 
     async def send_and_receive(self, message, answer_slot):
+        self.history.append(message)
         answer = await self.interface.send_and_receive(message)
+        self.history.append(answer)
         self.world.store(answer_slot, answer)
 
     def modify_world(self, _variable, _value):
@@ -59,8 +62,7 @@ class Coordinator:
         return self.usecase.get_questions()
 
     def modify_strategy(self):
-        # plug explanation strategy
-        new_exp_strategy = self.usecase.get_persona_explanation_strategy()
+        new_exp_strategy = self.usecase.get_persona_intent_explanation_strategy()
         self.bt.plug_strategy(new_exp_strategy, "Explanation Strategy")
 
     def modify_intent(self):
@@ -96,7 +98,11 @@ class Coordinator:
         return api.requestPOST(url, body, headers)
 
     def reset(self):
+        self.history = []
         self.world = storage.World()
         self.logger = logger.Logger()
         self.ontology = storage.Ontology(self)
         self.bt = bt.BehaviourTree(self)
+
+    def save_conversation(self):
+        print(self.history)

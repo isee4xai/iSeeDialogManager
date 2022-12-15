@@ -64,7 +64,7 @@ class Succeder(node.Node):
         return self.status
 
     def reset(self):
-        self.status = State.FAIL
+        self.status = State.FAILURE
 
 
 class QuestionNode(node.Node):
@@ -262,6 +262,7 @@ class NeedQuestionNode(QuestionNode):
         # print(_selected_question)
         self.co.modify_usecase(self.variable, _selected_question["id"])
         self.co.modify_intent()
+        self.co.modify_strategy()
         self.co.modify_evaluation()
         self.status = State.SUCCESS
         return self.status
@@ -290,7 +291,6 @@ class PersonaQuestionNode(QuestionNode):
         _selected_persona = json.loads(self.co.check_world(self.variable))
         # print(_selected_persona)
         self.co.modify_usecase(self.variable, _selected_persona["id"])
-        self.co.modify_strategy()
         self.status = State.SUCCESS
         return self.status
 
@@ -420,29 +420,19 @@ class TargetQuestionNode(QuestionNode):
             self.status = State.FAILURE
 
 
-class EvaluationQuestionNode(node.Node):
+class CompleteNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
-        self.message = None
 
     def toString(self):
-        return ("EVALUATION "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
+        return ("COMPLETE "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.OPEN.value, True)
-        q.responseOptions = None
-        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
-        await self.co.send_and_receive(_question, self.variable)
-        # evaluate_response = json.loads(self.co.check_world(self.variable))
-
-        #if self.sentiment.is_positive(evaluate_response.lower()):
-        # if evaluate_response[0]["content"].lower() == "yes":
+        self.co.save_conversation()
+        
         self.status = State.SUCCESS
-        # else:
-        #     self.status = State.FAILURE
         return self.status
 
     def reset(self):
-        if (self.status == State.SUCCESS):
-            self.status = State.FAILURE
+        self.status = State.FAILURE   

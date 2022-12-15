@@ -5,15 +5,14 @@ from business.bt.nodes.type import State
 class InverterNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
-        self.child = None
+        self.children = None
 
     def toString(self):
 
-        return ("LIMIT "+str(self.status) + " " + str(self.id))
+        return ("INVERTER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-
-        if (await self.child.tick()):
+        if (await self.children[0].tick() == State.SUCCESS):
             self.status = State.FAILURE
         else:
             self.status = State.SUCCESS
@@ -22,7 +21,7 @@ class InverterNode(node.Node):
 
     def reset(self):
         self.status = State.FAILURE
-        self.child.reset()
+        self.children[0].reset()
 
 
 class LimitActivationNode(node.Node):
@@ -30,7 +29,7 @@ class LimitActivationNode(node.Node):
         super().__init__(id)
         self.timesActivated = 0
         self.limit = None
-        self.child = None
+        self.children = None
 
     def toString(self):
 
@@ -40,7 +39,7 @@ class LimitActivationNode(node.Node):
 
         if (self.timesActivated < self.limit):
             self.timesActivated += 1
-            self.status = await self.child.tick()
+            self.status = await self.children[0].tick()
         else:
             self.status = State.SUCCESS
 
@@ -48,13 +47,13 @@ class LimitActivationNode(node.Node):
 
     def reset(self):
         self.status = State.FAILURE
-        self.child.reset()
+        self.children[0].reset()
 
 
 class RepeatNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
-        self.child = None
+        self.children = None
 
     def toString(self):
         return ("REPEAT "+str(self.status) + " " + str(self.id))
@@ -64,26 +63,26 @@ class RepeatNode(node.Node):
 
     def reset(self):
         self.status = State.FAILURE
-        self.child.reset()
+        self.children[0].reset()
 
 
 class RepTillFailNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
-        self.child = None
+        self.children = None
 
     def toString(self):
         return ("REP TILL FAIL "+str(self.status) + " " + str(self.id))
 
     async def tick(self, predecessor: "Node"):
 
-        if (not (predecessor in self.child)):
+        if (not (predecessor in self.children[0])):
 
             # we check the first child (if it has one)
-            if (len(self.child) > 0):
+            if (len(self.children) > 0):
                 #print("go in first child")
                 self.statut = State.RUNNING
-                await self.child[0].tick()
+                await self.children[0].tick()
 
             else:
                 #print("no child")
@@ -93,13 +92,13 @@ class RepTillFailNode(node.Node):
             self.status = State.SUCCESS
             while (self.status == State.SUCCESS):
 
-                self.status = await self.child[0].tick()
+                self.status = await self.children[0].tick()
 
         return self.status
 
     def reset(self):
         self.status = State.FAILURE
-        self.child.reset()
+        self.children[0].reset()
 
 
 class RepTillSuccNode(node.Node):

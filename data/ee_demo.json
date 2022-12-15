@@ -82,15 +82,6 @@
     {
       "version": "0.1.0",
       "scope": "node",
-      "Concept": "Strategy",
-      "category": "composite",
-      "title": "Strategy",
-      "description": null,
-      "properties": {}
-    },
-    {
-      "version": "0.1.0",
-      "scope": "node",
       "Concept": "Persona Question",
       "category": "action",
       "title": "Persona Question",
@@ -141,6 +132,15 @@
       "title": "Target Question",
       "description": null,
       "properties": {}
+    },
+    {
+      "version": "0.1.0",
+      "scope": "node",
+      "Concept": "Complete",
+      "category": "action",
+      "title": "Complete",
+      "description": null,
+      "properties": {}
     }
   ],
   "nodes": {
@@ -163,8 +163,11 @@
             "Next": {
               "Id": "1633b6e6-c578-4347-9649-6c6de19d6bf8",
               "Next": {
-                "Id": "d1d86bff-86f7-4229-82eb-a42f397099f5",
-                "Next": null
+                "Id": "38038770-1849-44b7-9044-9f67302c5acb",
+                "Next": {
+                  "Id": "de36a4b7-e0b6-46b1-9ba0-9d391062060b",
+                  "Next": null
+                }
               }
             }
           }
@@ -386,7 +389,7 @@
         "maxLoop": -1
       },
       "display": {
-        "x": 1056,
+        "x": 1020,
         "y": 624
       },
       "firstChild": {
@@ -401,7 +404,7 @@
       "description": "",
       "properties": {},
       "display": {
-        "x": 1056,
+        "x": 1020,
         "y": 732
       },
       "firstChild": {
@@ -466,8 +469,8 @@
         "evaluation": "False"
       },
       "display": {
-        "x": 1296,
-        "y": 420
+        "x": 1632,
+        "y": 504
       }
     },
     "1633b6e6-c578-4347-9649-6c6de19d6bf8": {
@@ -477,20 +480,14 @@
       "description": "",
       "properties": {},
       "display": {
-        "x": 1500,
-        "y": 276
+        "x": 1800,
+        "y": 336
       },
       "firstChild": {
         "Id": "18704e1a-d968-471b-ba78-9b1ac46fcb2b",
         "Next": {
-          "Id": "1582ff0f-11de-47d4-a639-d6b34c6ec2cd",
-          "Next": {
-            "Id": "b248351d-fd85-42a4-88d4-b1421e7ee72f",
-            "Next": {
-              "Id": "25aa331e-dcf7-4764-8885-cf0079628f0d",
-              "Next": null
-            }
-          }
+          "Id": "c50f7103-0678-449d-af52-06485e92da7f",
+          "Next": null
         }
       }
     },
@@ -520,8 +517,8 @@
         "evaluation": "True"
       },
       "display": {
-        "x": 1884,
-        "y": 420
+        "x": 2196,
+        "y": 696
       }
     },
     "b248351d-fd85-42a4-88d4-b1421e7ee72f": {
@@ -531,68 +528,8 @@
       "description": "",
       "properties": {},
       "display": {
-        "x": 1680,
-        "y": 420
-      }
-    },
-    "d1d86bff-86f7-4229-82eb-a42f397099f5": {
-      "id": "d1d86bff-86f7-4229-82eb-a42f397099f5",
-      "Concept": "Sequence",
-      "Instance": "Sequence",
-      "description": "",
-      "properties": {},
-      "display": {
-        "x": 2340,
-        "y": 324
-      },
-      "firstChild": {
-        "Id": "ab66c567-9732-41c4-893c-6eaf16e680a7",
-        "Next": {
-          "Id": "fab22d47-135a-44c1-a0b7-d191f391e26d",
-          "Next": {
-            "Id": "b2e737d5-fbff-4fa4-8360-5cee49d67986",
-            "Next": null
-          }
-        }
-      }
-    },
-    "ab66c567-9732-41c4-893c-6eaf16e680a7": {
-      "id": "ab66c567-9732-41c4-893c-6eaf16e680a7",
-      "Concept": "Equal",
-      "Instance": "is complete",
-      "description": "",
-      "properties": {
-        "complete": "False"
-      },
-      "display": {
-        "x": 2172,
-        "y": 432
-      }
-    },
-    "fab22d47-135a-44c1-a0b7-d191f391e26d": {
-      "id": "fab22d47-135a-44c1-a0b7-d191f391e26d",
-      "Concept": "Greeter",
-      "Instance": "Complete",
-      "description": "",
-      "properties": {
-        "variable": "complete_response"
-      },
-      "display": {
-        "x": 2340,
-        "y": 432
-      }
-    },
-    "b2e737d5-fbff-4fa4-8360-5cee49d67986": {
-      "id": "b2e737d5-fbff-4fa4-8360-5cee49d67986",
-      "Concept": "World Modifier",
-      "Instance": "Set complete",
-      "description": "",
-      "properties": {
-        "complete": "True"
-      },
-      "display": {
-        "x": 2508,
-        "y": 432
+        "x": 1992,
+        "y": 696
       }
     },
     "1582ff0f-11de-47d4-a639-d6b34c6ec2cd": {
@@ -605,8 +542,8 @@
         "variable": "evaluate_proceed"
       },
       "display": {
-        "x": 1500,
-        "y": 420
+        "x": 1776,
+        "y": 696
       }
     },
     "93e3db1d-8b5f-4f66-ad9c-cde1f4f38e44": {
@@ -695,14 +632,136 @@
       "description": "",
       "properties": {},
       "display": {
-        "x": 1404,
+        "x": 1512,
+        "y": 624
+      }
+    },
+    "de36a4b7-e0b6-46b1-9ba0-9d391062060b": {
+      "id": "de36a4b7-e0b6-46b1-9ba0-9d391062060b",
+      "Concept": "Sequence",
+      "Instance": "Sequence",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 2388,
+        "y": 372
+      },
+      "firstChild": {
+        "Id": "0a5747a4-f6dd-4aed-ab7f-381b2df1c8ee",
+        "Next": {
+          "Id": "9eeb25f3-0cf4-424a-bf62-2e440f2af194",
+          "Next": {
+            "Id": "7384720c-4da6-4428-a7ff-ccecc4ac7666",
+            "Next": null
+          }
+        }
+      }
+    },
+    "0a5747a4-f6dd-4aed-ab7f-381b2df1c8ee": {
+      "id": "0a5747a4-f6dd-4aed-ab7f-381b2df1c8ee",
+      "Concept": "Equal",
+      "Instance": "is complete",
+      "description": "",
+      "properties": {
+        "complete": "False"
+      },
+      "display": {
+        "x": 2220,
+        "y": 480
+      }
+    },
+    "9eeb25f3-0cf4-424a-bf62-2e440f2af194": {
+      "id": "9eeb25f3-0cf4-424a-bf62-2e440f2af194",
+      "Concept": "Greeter",
+      "Instance": "Complete",
+      "description": "",
+      "properties": {
+        "variable": "complete_response"
+      },
+      "display": {
+        "x": 2388,
+        "y": 480
+      }
+    },
+    "7384720c-4da6-4428-a7ff-ccecc4ac7666": {
+      "id": "7384720c-4da6-4428-a7ff-ccecc4ac7666",
+      "Concept": "World Modifier",
+      "Instance": "Set complete",
+      "description": "",
+      "properties": {
+        "complete": "True"
+      },
+      "display": {
+        "x": 2556,
+        "y": 480
+      }
+    },
+    "c50f7103-0678-449d-af52-06485e92da7f": {
+      "id": "c50f7103-0678-449d-af52-06485e92da7f",
+      "Concept": "Priority",
+      "Instance": "Priority",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 1932,
+        "y": 456
+      },
+      "firstChild": {
+        "Id": "aede7479-a7c3-4f4e-8d0c-6714bcf47c90",
+        "Next": {
+          "Id": "e507a989-9f1c-4c0b-8358-cd94aaf229f0",
+          "Next": null
+        }
+      }
+    },
+    "aede7479-a7c3-4f4e-8d0c-6714bcf47c90": {
+      "id": "aede7479-a7c3-4f4e-8d0c-6714bcf47c90",
+      "Concept": "Inverter",
+      "Instance": "Inverter",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 1776,
         "y": 588
+      },
+      "firstChild": {
+        "Id": "1582ff0f-11de-47d4-a639-d6b34c6ec2cd",
+        "Next": null
+      }
+    },
+    "e507a989-9f1c-4c0b-8358-cd94aaf229f0": {
+      "id": "e507a989-9f1c-4c0b-8358-cd94aaf229f0",
+      "Concept": "Sequence",
+      "Instance": "Sequence",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 2088,
+        "y": 576
+      },
+      "firstChild": {
+        "Id": "b248351d-fd85-42a4-88d4-b1421e7ee72f",
+        "Next": {
+          "Id": "25aa331e-dcf7-4764-8885-cf0079628f0d",
+          "Next": null
+        }
+      }
+    },
+    "38038770-1849-44b7-9044-9f67302c5acb": {
+      "id": "38038770-1849-44b7-9044-9f67302c5acb",
+      "Concept": "Complete",
+      "Instance": "Complete Chat",
+      "description": "",
+      "properties": {},
+      "display": {
+        "x": 1908,
+        "y": 84
       }
     }
   },
   "display": {
-    "camera_x": -122.29999827221036,
-    "camera_y": -8.799999877810478,
+    "camera_x": -355.59999852254987,
+    "camera_y": 195.50000010430813,
     "camera_z": 0.75,
     "x": -12,
     "y": -192

@@ -37,12 +37,6 @@ class Question:
 
 class World:
     def __init__(self) -> None:
-        self.last_user_answer = None
-        self.user_intent = ''
-        self.survey_is_completed = False
-        self.user_greeted = False
-        self.user_satisfied = False
-        #self.save = JSONS
         self.storage = dict()
 
     # put or update a value in the storage dictionnary
@@ -90,11 +84,6 @@ class Ontology:
 
         return res
 
-class User:
-    def __init__(self, user, co) -> None:
-        self.co = co
-        self.user = user
-
 
 class Usecase:
     def __init__(self, usecase_id, co) -> None:
@@ -107,8 +96,8 @@ class Usecase:
         self.persona_intents = {}
         # {persona_id: questions{}}
         self.persona_questions = {}
-        # {persona_id: composite explanation strategy}
-        self.persona_expstrategy = {}
+        # {persona_id: {intent_id, composite explanation strategy}}
+        self.p_i_expstrategy = {}
         # {intent_id: questions[]}
         self.question_intent = {}
         # {persona_id: composite evaluation strategy}
@@ -150,59 +139,18 @@ class Usecase:
             for q in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["https://purl.org/heals/eo#asks"]:
                 self.question_intent[q["instance"]] = intent_id
 
-            if persona_id in self.persona_expstrategy:
-                temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
-                        if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
-                intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
-                intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
-
-                condition_node = node_factory.makeNode("Equal", intent, intent)
-                condition_node.variables = {intent: True}
-                condition_node.co = self.co
-
-                sequence_node = node_factory.makeNode(
-                    "Sequence", "Sequence_"+intent, "Sequence_"+intent)
-                sequence_node.children.append(condition_node)
-                sequence_node.children.append(
-                    intent_strategy_tree.currentNode.children[0])
-                sequence_node.co = self.co
-
-                current_subtree = self.persona_expstrategy[persona_id]
-                exstrgy_node = current_subtree.nodes["ExplanationStrategy"]
-                exstrgy_node.children.append(sequence_node)
-
-                _nodes = {**current_subtree.nodes, **intent_strategy_tree.nodes, sequence_node.id: sequence_node,
-                          condition_node.id: condition_node}
-                self.persona_expstrategy[persona_id] = bt.Tree(
-                    exstrgy_node, _nodes)
-
+            temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
+                    if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
+            _intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
+            _intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
+            _tree = bt.Tree(_intent_strategy_tree.root.children[0], _intent_strategy_tree.nodes)       
+            if persona_id in self.p_i_expstrategy:
+                _i_strategy = self.p_i_expstrategy[persona_id]
             else:
-                temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
-                        if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
-                intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
-                intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
-
-                condition_node = node_factory.makeNode("Equal", intent, intent)
-                condition_node.variables = {intent: True}
-                condition_node.co = self.co
-
-                sequence_node = node_factory.makeNode(
-                    "Sequence", "Sequence_"+intent, "Sequence_"+intent)
-                sequence_node.children.append(condition_node)
-                sequence_node.children.append(
-                    intent_strategy_tree.currentNode.children[0])
-                sequence_node.co = self.co
-
-                exstrgy_node = node_factory.makeNode(
-                    "Priority", "ExplanationStrategy", "ExplanationStrategy")
-                exstrgy_node.children.append(sequence_node)
-                exstrgy_node.co = self.co
-
-                _nodes = {**intent_strategy_tree.nodes, exstrgy_node.id: exstrgy_node, sequence_node.id: sequence_node,
-                          condition_node.id: condition_node}
-                self.persona_expstrategy[persona_id] = bt.Tree(
-                    exstrgy_node, _nodes)
-
+                _i_strategy = {}
+            _i_strategy[_intent] = _tree
+            self.p_i_expstrategy[persona_id] = _i_strategy
+                
     # store data from the use case
     def store(self, _key, _value):
         self.storage[_key] = _value
@@ -274,9 +222,12 @@ class Usecase:
 
         self.persona_evalstrategy[self.get("selected_persona")] = bt.Tree(eval_strategy_node, None)            
 
-    def get_persona_explanation_strategy(self):
-        if self.get("selected_persona") and self.get("selected_persona") in self.persona_expstrategy:
-            return self.persona_expstrategy[self.get("selected_persona")]
+    def get_persona_intent_explanation_strategy(self):
+        if self.get("selected_persona") and self.get("selected_persona") in self.p_i_expstrategy:
+            _p_i_exs = self.p_i_expstrategy[self.get("selected_persona")]
+            selected_intent = self.question_intent[self.get("selected_need")]
+            if selected_intent and selected_intent in _p_i_exs:
+                return _p_i_exs[selected_intent]
         return None
 
     def get_persona_evaluation_strategy(self):

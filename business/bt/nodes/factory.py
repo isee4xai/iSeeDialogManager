@@ -1,5 +1,5 @@
 from business.bt.nodes.action import ActionNode, Succeder, Failer, GreeterNode, InitialiserNode, KnowledgeQuestionNode, TargetQuestionNode
-from business.bt.nodes.action import QuestionNode, NeedQuestionNode, PersonaQuestionNode, ExplainerNode, MultipleChoiceQuestionNode
+from business.bt.nodes.action import QuestionNode, NeedQuestionNode, PersonaQuestionNode, ExplainerNode, MultipleChoiceQuestionNode, CompleteNode
 from business.bt.nodes.action import ConfirmNode 
 from business.bt.nodes.modifier import UsecaseModifierNode, WorldModifierNode
 from business.bt.nodes.condition import ConditionNode, EqualNode
@@ -41,6 +41,8 @@ def makeNode(type, id, label):
         res = GreeterNode(id)
     elif type == "Confirm Question":
         res = ConfirmNode(id)
+    elif type == "Complete":
+        res = CompleteNode(id)
 
     elif type == "Condition":
         res = ConditionNode(id)
