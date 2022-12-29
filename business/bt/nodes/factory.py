@@ -4,6 +4,7 @@ from business.bt.nodes.action import ConfirmNode
 from business.bt.nodes.modifier import UsecaseModifierNode, WorldModifierNode
 from business.bt.nodes.condition import ConditionNode, EqualNode
 from business.bt.nodes.composite import SequenceNode, PriorityNode, EvaluationStrategyNode, ExplanationStrategyNode
+from business.bt.nodes.hybrid import SupplementNode, ComplementNode, ReplacementNode, VariantNode
 from business.bt.nodes.decorator import LimitActivationNode, RepeatNode, RepTillFailNode, RepTillSuccNode, InverterNode
 from business.bt.nodes.node import Node
 
@@ -57,6 +58,15 @@ def makeNode(type, id, label):
         res = EvaluationStrategyNode(id)
     elif type == "Explanation Strategy":
         res = ExplanationStrategyNode(id)
+
+    elif type == "Replacement":
+        res = ReplacementNode(id)
+    elif type == "Variant":
+        res = VariantNode(id)
+    elif type == "Complement":
+        res = ComplementNode(id)
+    elif type == "Supplement":
+        res = SupplementNode(id)        
 
     elif type == "RepeatUntilFailure":
         res = RepTillFailNode(id)

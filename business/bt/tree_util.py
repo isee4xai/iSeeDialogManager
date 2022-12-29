@@ -41,6 +41,17 @@ def generate_tree(parser, co):
                 children = children["Next"]
                 if children is None:
                     break
+                
+        if (parser.bt_nodes[n]["Concept"] == "Replacement"
+                or parser.bt_nodes[n]["Concept"] == "Variant"
+                or parser.bt_nodes[n]["Concept"] == "Complement"
+                or parser.bt_nodes[n]["Concept"] == "Supplement"):
+            children = parser.bt_nodes[n]["firstChild"]
+            while True:
+                nodes.get(n).children.append(nodes.get(children["Id"]))
+                children = children["Next"]
+                if children is None:
+                    break
 
         if (parser.bt_nodes[n]["Concept"] == "RepeatUntilSuccess"
                 or parser.bt_nodes[n]["Concept"] == "RepeatUntilFailure"
@@ -91,7 +102,7 @@ def generate_tree(parser, co):
 
         if parser.bt_nodes[n]["Concept"] == "Explanation Method":
             nodes.get(n).params = parser.bt_nodes[n]["params"]
-            nodes.get(n).endpoint = parser.bt_nodes[node_id]["Instance"]
+            nodes.get(n).endpoint = parser.bt_nodes[n]["Instance"]
 
     root_id = parser.bt_root
     root = node.RootNode('0')
