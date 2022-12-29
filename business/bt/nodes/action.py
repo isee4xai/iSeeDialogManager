@@ -91,14 +91,14 @@ class ConfirmNode(QuestionNode):
         return ("CONFIRM "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.OPEN.value, True)
-        q.responseOptions = None
+        q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
+        q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "No") ]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
         await self.co.send_and_receive(_question, self.variable)
         confirm_response = json.loads(self.co.check_world(self.variable))
 
-        if self.co.is_positive(confirm_response[0]["content"].lower()):
+        if self.co.is_positive(confirm_response["content"].lower()):
             self.status = State.SUCCESS
         else:
             self.status = State.FAILURE
@@ -132,18 +132,18 @@ class GreeterNode(QuestionNode):
             _question = _question + "I am the iSee Chatbot for the " + usecase_name + ", "
             _question = _question + "Would you like to proceed?"
 
-            q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
-            q.responseOptions = None
+            q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+            q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "No") ]
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
             await self.co.send_and_receive(_question, self.variable)
 
             proceed_response = json.loads(self.co.check_world(self.variable))
 
-            while not self.co.is_positive(proceed_response[0]["content"].lower()):
+            while not self.co.is_positive(proceed_response["content"].lower()):
                 _question = "Would you like to proceed?"
-                q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
-                q.responseOptions = None
+                q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+                q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "No") ]
                 _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
                 await self.co.send_and_receive(_question, self.variable)
                 proceed_response = json.loads(self.co.check_world(self.variable))
@@ -333,8 +333,8 @@ class ExplainerNode(node.Node):
             output_description = "A table showing the original data instance and a counterfactual (similar instance with minor changes for which the AI system predicts a different outcome)."
             _question += html.discern_explanation(random_instance, explainer_result, output_description)
 
-        q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
-        q.responseOptions = None
+        q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+        q.responseOptions = [s.Response("okay", "Okay")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
 
@@ -378,8 +378,8 @@ class TargetQuestionNode(QuestionNode):
         _question = '<p>Here is your loan application</p>'+html.target(df_json)
         _question += '<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
 
-        q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
-        q.responseOptions = None
+        q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+        q.responseOptions = [s.Response("okay", "Okay") ]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
 
