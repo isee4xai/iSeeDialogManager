@@ -6,6 +6,7 @@ import json
 import business.storage as s
 import business.bt.nodes.html_format as html
 import pandas as pd
+
 class ActionNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
@@ -15,14 +16,8 @@ class ActionNode(node.Node):
 
     async def tick(self):
 
-        # do_action(self.action)
-        # if(self.status == State.RUNNING):
-        # 	if(not self.thread.is_alive()):
-        # 		self.status = State.SUCCESS
-        # else:
-        # 	self.status = State.RUNNING
-        # 	self.thread = threading.Thread(target=do_action, args=(self.action,))
-        # 	self.thread.start()
+        # do_action()
+
         self.status = State.SUCCESS
         return self.status
 
@@ -103,8 +98,7 @@ class ConfirmNode(QuestionNode):
         await self.co.send_and_receive(_question, self.variable)
         confirm_response = json.loads(self.co.check_world(self.variable))
 
-        #if self.sentiment.is_positive(evaluate_response.lower()):
-        if confirm_response[0]["content"].lower() == "yes":
+        if self.co.is_positive(confirm_response[0]["content"].lower()):
             self.status = State.SUCCESS
         else:
             self.status = State.FAILURE
@@ -121,7 +115,6 @@ class GreeterNode(QuestionNode):
         self.greet_text = {0: "Good Morning ☀️",
                            1: "Good Afternoon",
                            2: "Good Evening"}
-        # self.sentiment = SentimentAnalyser()
 
     def toString(self):
         return "GREETER " + str(self.status) + " " + str(self.id) + " " + str(self.variable)
@@ -141,16 +134,13 @@ class GreeterNode(QuestionNode):
 
             q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
             q.responseOptions = None
-            # print(q.responseType)
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
             await self.co.send_and_receive(_question, self.variable)
 
             proceed_response = json.loads(self.co.check_world(self.variable))
-            # print(proceed_response)
 
-            # while not self.sentiment.is_positive(proceed_response.lower()):
-            while not proceed_response[0]["content"].lower() == "yes":
+            while not self.co.is_positive(proceed_response[0]["content"].lower()):
                 _question = "Would you like to proceed?"
                 q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
                 q.responseOptions = None
@@ -184,20 +174,6 @@ class InitialiserNode(ActionNode):
         return ("INITIALISER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-        # get end user name and use case they are attached to from login
-        # self.co.modify_world("end_user_name", "Major Lee Adama")
-        # self.co.modify_world("use_case_id", "63231e9432f3b8255c1b0346")
-
-        # TODO use GET /usecases/:id
-        # with open("data/63231e9432f3b8255c1b0346.json", 'r') as usecase_file:
-        #     self.use_case = json.load(usecase_file)
-        #     self.co.createUsecase(self.use_case)
-
-        # TODO API call
-        # self.co.createOntology()
-
-        # init ML stuff - commented
-        # SentimentAnalyser.get()
 
         self.status = State.SUCCESS
 
@@ -256,10 +232,9 @@ class NeedQuestionNode(QuestionNode):
 
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
-        # user response
-        # TODO get question from user response
+
         _selected_question = json.loads(self.co.check_world(self.variable))
-        # print(_selected_question)
+       
         self.co.modify_usecase(self.variable, _selected_question["id"])
         self.co.modify_intent()
         self.co.modify_strategy()
@@ -286,10 +261,9 @@ class PersonaQuestionNode(QuestionNode):
 
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
-        # user response
-        # TODO get persona from user response
+
         _selected_persona = json.loads(self.co.check_world(self.variable))
-        # print(_selected_persona)
+
         self.co.modify_usecase(self.variable, _selected_persona["id"])
         self.status = State.SUCCESS
         return self.status
@@ -310,7 +284,6 @@ class MultipleChoiceQuestionNode(QuestionNode):
                 + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        # print(self.options)
         q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response(k,v) for k,v in self.options.items()]
 
