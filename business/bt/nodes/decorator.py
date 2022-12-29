@@ -132,6 +132,7 @@ class RepTillSuccNode(node.Node):
         # return self.status
 
     async def tick(self):
+        self.status = State.FAILURE
         while self.status == State.FAILURE:
             self.status = await self.children[0].tick()
 

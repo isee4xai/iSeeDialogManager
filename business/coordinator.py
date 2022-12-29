@@ -71,7 +71,6 @@ class Coordinator:
         self.usecase.modify_intent()
 
     def modify_evaluation(self):
-        # populate evaluation strategy
         new_eval_strategy = self.usecase.get_persona_evaluation_strategy()
         self.bt.plug_strategy(new_eval_strategy, "Evaluation Strategy")
 

@@ -98,7 +98,7 @@ class Usecase:
         self.persona_questions = {}
         # {persona_id: {intent_id, composite explanation strategy}}
         self.p_i_expstrategy = {}
-        # {intent_id: questions[]}
+        # {question_id: intent_id}
         self.question_intent = {}
         # {persona_id: composite evaluation strategy}
         self.persona_evalstrategy = {}
@@ -141,7 +141,9 @@ class Usecase:
 
             temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
                     if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
-            _intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
+            # _intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
+            #TODO for testing composite strategies
+            _intent_strategy_tree = tg.generate_tree_from_file('data/estrategy2.json', self.co)
             _intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
             _tree = bt.Tree(_intent_strategy_tree.root.children[0], _intent_strategy_tree.nodes)       
             if persona_id in self.p_i_expstrategy:
@@ -190,7 +192,12 @@ class Usecase:
         _qs = {}
         if self.get("selected_persona") and self.persona_questions:
             p_id = self.get("selected_persona")
-            _qs = self.persona_questions[p_id]
+            _qs_ = self.persona_questions[p_id]
+            _is_ = self.get("selected_intents") 
+            for _k, _v in _qs_.items():
+                _i = self.question_intent[_k]
+                if not _is_ or (_is_ and _i not in _is_):
+                    _qs[_k] = _v
         return _qs
 
     def init_persona_strategy(self):
