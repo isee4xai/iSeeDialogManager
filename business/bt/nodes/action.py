@@ -36,7 +36,7 @@ class Failer(node.Node):
 
     async def tick(self):
 
-        await self.co.send_and_receive(self.message)
+        # do something
         self.status = State.FAILURE
         return self.status
 
@@ -54,7 +54,7 @@ class Succeder(node.Node):
 
     async def tick(self):
 
-        await self.co.send_and_receive(self.message)
+        # do something
         self.status = State.SUCCESS
         return self.status
 
@@ -72,10 +72,8 @@ class QuestionNode(node.Node):
         return ("QUESTION "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-
-        await self.co.send_and_receive(self.question, self.variable)
+        # ask question
         self.status = State.SUCCESS
-
         return self.status
 
     def reset(self):
@@ -175,8 +173,8 @@ class InitialiserNode(ActionNode):
 
     async def tick(self):
 
+        # not used 
         self.status = State.SUCCESS
-
         return self.status
 
     def reset(self):
@@ -201,12 +199,10 @@ class KnowledgeQuestionNode(QuestionNode):
         # else:
         #     await self.co.send_and_receive(self.question, self.variable)
 
-        # # TODO extracted knowledge level should go to use case storage, not user utterance
         # response = self.co.check_world(self.variable)
         # if response.lower() in data:
         #     self.co.modify_usecase(self.variable, response.lower())
 
-        # TODO ask till appropriate user response
         self.status = State.SUCCESS
 
         return self.status
@@ -226,21 +222,34 @@ class NeedQuestionNode(QuestionNode):
                 + str(self.variable) + " " + str(self.question_data))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         questions = self.co.get_questions()
-        q.responseOptions = [s.Response(k, q) for k, q in questions.items()]
+        if questions:
+            q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
+            q.responseOptions = [s.Response(k, q) for k, q in questions.items()]
 
-        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
-        await self.co.send_and_receive(_question, self.variable)
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+            await self.co.send_and_receive(_question, self.variable)
 
-        _selected_question = json.loads(self.co.check_world(self.variable))
-       
-        self.co.modify_usecase(self.variable, _selected_question["id"])
-        self.co.modify_intent()
-        self.co.modify_strategy()
-        self.co.modify_evaluation()
-        self.status = State.SUCCESS
-        return self.status
+            _selected_question = json.loads(self.co.check_world(self.variable))
+        
+            self.co.modify_usecase(self.variable, _selected_question["id"])
+            self.co.modify_intent()
+            self.co.modify_strategy()
+            self.co.modify_evaluation()
+            self.status = State.SUCCESS
+            return self.status
+        # allow free-text questions?
+        # else:
+        #     q = s.Question(self.id, self.question, s.ResponseType.OPEN.value, True)
+        #     q.responseOptions = None
+
+        #     _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+        #     await self.co.send_and_receive(_question, self.variable)
+
+        #     _selected_question = json.loads(self.co.check_world(self.variable))
+
+        #     predict intent based on the free-text question and do modifications
+
 
     def reset(self):
         if self.status == State.SUCCESS:
@@ -280,7 +289,7 @@ class MultipleChoiceQuestionNode(QuestionNode):
         self.type = None
 
     def toString(self):
-        return ("SINGLE SELECT MULTIPLE CHOICE QUESTION "+str(self.status) + " " + str(self.id) + " " 
+        return ("MULTIPLE CHOICE QUESTION "+str(self.status) + " " + str(self.id) + " " 
                 + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
@@ -310,29 +319,30 @@ class ExplainerNode(node.Node):
 
     async def tick(self):
 
-        random_instance = self.co.check_world("selected_target")
-        explainer_query = {
-            "instance":random_instance ,
-            "method": self.endpoint,
-            # "params": self.params -> TODO: Needs Validation
-        }
+        # random_instance = self.co.check_world("selected_target")
+        # explainer_query = {
+        #     "instance":random_instance ,
+        #     "method": self.endpoint,
+        #     # "params": self.params -> TODO: Needs Validation
+        # }
 
-        explainer_result = self.co.get_secure_api_post("/explainerResponse", explainer_query)
+        # explainer_result = self.co.get_secure_api_post("/explainerResponse", explainer_query)
 
-        output_description = ""
-        # only needs a specific description, for now will take the last one
-        for o in explainer_result["meta"]["output_description"]:
-            output_description = explainer_result["meta"]["output_description"][o]
+        # output_description = ""
+        # # only needs a specific description, for now will take the last one
+        # for o in explainer_result["meta"]["output_description"]:
+        #     output_description = explainer_result["meta"]["output_description"][o]
 
-        if self.endpoint == '/Tabular/LIME':
-            _question = '<p>Here is an explanation from LIME Explainability Technique</p>'
-            _question += html.lime_explanation(explainer_result, output_description)
+        # if self.endpoint == '/Tabular/LIME':
+        #     _question = '<p>Here is an explanation from LIME Explainability Technique</p>'
+        #     _question += html.lime_explanation(explainer_result, output_description)
 
-        elif self.endpoint == '/Tabular/DisCERN':
-            _question = '<p>Here is an explanation from DisCERN Explainability Technique</p>'
-            output_description = "A table showing the original data instance and a counterfactual (similar instance with minor changes for which the AI system predicts a different outcome)."
-            _question += html.discern_explanation(random_instance, explainer_result, output_description)
+        # elif self.endpoint == '/Tabular/DisCERN':
+        #     _question = '<p>Here is an explanation from DisCERN Explainability Technique</p>'
+        #     output_description = "A table showing the original data instance and a counterfactual (similar instance with minor changes for which the AI system predicts a different outcome)."
+        #     _question += html.discern_explanation(random_instance, explainer_result, output_description)
 
+        _question = '<p>'+self.endpoint+'</p>'
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response("okay", "Okay")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
@@ -354,36 +364,36 @@ class TargetQuestionNode(QuestionNode):
         return ("TARGET "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        random_instance = self.co.get_secure_api("/sampleDataInstance", {})
+        # random_instance = self.co.get_secure_api("/sampleDataInstance", {})
         
-        ai_model_query = {
-            "instance":random_instance['instance']
-        }
+        # ai_model_query = {
+        #     "instance":random_instance['instance']
+        # }
 
-        instance_json = random_instance["json"]
-        #TODO meta_data = self.co.check_usecase("ai_model_meta")
-        meta_data = '{\"target_names\":[\"loan_status\"],\"target_values\":[\"Rejected\",\"Accepted\"],\"features\":[{\"id\":\"loan_amnt\",\"min\":1000,\"max\":40000},{\"id\":\"total_pymnt\",\"min\":41.62,\"max\":44881.66051},{\"id\":\"total_rec_int\",\"min\":0,\"max\":7036.9},{\"id\":\"term\",\"values\":[\"36 months\",\"60 months\"]},{\"id\":\"int_rate\",\"min\":5.31,\"max\":30.79},{\"id\":\"installment\",\"min\":32.47,\"max\":1474.75},{\"id\":\"home_ownership\",\"values\":[\"Rent\",\"Own\",\"Mortgage\",\"Any\"]},{\"id\":\"annual_inc\",\"min\":3600,\"max\":700000},{\"id\":\"verification_status\",\"values\":[\"Source Verified\",\"Not Verified\",\"Verified\"]},{\"id\":\"loan_status\",\"values\":[\"Rejected\",\"Accepted\"]},{\"id\":\"purpose\",\"values\":[\"major purchase\",\"other\",\"home improvement\",\"debt consolidation\",\"house\",\"credit card\",\"car\",\"medical\",\"vacation\",\"small business\",\"moving\",\"renewable energy\"]}]}'
-        meta_data = json.loads(meta_data)
+        # instance_json = random_instance["json"]
+        # #TODO meta_data = self.co.check_usecase("ai_model_meta")
+        # meta_data = '{\"target_names\":[\"loan_status\"],\"target_values\":[\"Rejected\",\"Accepted\"],\"features\":[{\"id\":\"loan_amnt\",\"min\":1000,\"max\":40000},{\"id\":\"total_pymnt\",\"min\":41.62,\"max\":44881.66051},{\"id\":\"total_rec_int\",\"min\":0,\"max\":7036.9},{\"id\":\"term\",\"values\":[\"36 months\",\"60 months\"]},{\"id\":\"int_rate\",\"min\":5.31,\"max\":30.79},{\"id\":\"installment\",\"min\":32.47,\"max\":1474.75},{\"id\":\"home_ownership\",\"values\":[\"Rent\",\"Own\",\"Mortgage\",\"Any\"]},{\"id\":\"annual_inc\",\"min\":3600,\"max\":700000},{\"id\":\"verification_status\",\"values\":[\"Source Verified\",\"Not Verified\",\"Verified\"]},{\"id\":\"loan_status\",\"values\":[\"Rejected\",\"Accepted\"]},{\"id\":\"purpose\",\"values\":[\"major purchase\",\"other\",\"home improvement\",\"debt consolidation\",\"house\",\"credit card\",\"car\",\"medical\",\"vacation\",\"small business\",\"moving\",\"renewable energy\"]}]}'
+        # meta_data = json.loads(meta_data)
 
-        features = meta_data["features"]
-        for item in [f for f in features if "values" in f and f["id"] not in meta_data["target_names"]]:
-            instance_json[item["id"]] = item["values"][int(instance_json[item["id"]])]
-        for item in [f for f in features if "max" in f and f["id"] not in meta_data["target_names"]]:
-            instance_json[item["id"]] = round(float(instance_json[item["id"]])*float(item["max"]), 2)
+        # features = meta_data["features"]
+        # for item in [f for f in features if "values" in f and f["id"] not in meta_data["target_names"]]:
+        #     instance_json[item["id"]] = item["values"][int(instance_json[item["id"]])]
+        # for item in [f for f in features if "max" in f and f["id"] not in meta_data["target_names"]]:
+        #     instance_json[item["id"]] = round(float(instance_json[item["id"]])*float(item["max"]), 2)
 
-        ai_model_result = self.co.get_secure_api_post("/predictResponse", ai_model_query)
+        # ai_model_result = self.co.get_secure_api_post("/predictResponse", ai_model_query)
 
-        df_json = pd.json_normalize(json.loads(json.dumps(instance_json, indent=4)))
-        outcome_json = pd.json_normalize(json.loads(json.dumps(ai_model_result, indent=4)))
-        _question = '<p>Here is your loan application</p>'+html.target(df_json)
-        _question += '<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
+        # df_json = pd.json_normalize(json.loads(json.dumps(instance_json, indent=4)))
+        # outcome_json = pd.json_normalize(json.loads(json.dumps(ai_model_result, indent=4)))
+        # _question = '<p>Here is your loan application</p>'+html.target(df_json)
+        # _question += '<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
 
-        q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("okay", "Okay") ]
-        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
-        await self.co.send_and_receive(_question, self.variable)
+        # q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+        # q.responseOptions = [s.Response("okay", "Okay") ]
+        # _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+        # await self.co.send_and_receive(_question, self.variable)
 
-        self.co.modify_world(self.variable, random_instance['instance'])
+        # self.co.modify_world(self.variable, random_instance['instance'])
         
         self.status = State.SUCCESS
         return self.status

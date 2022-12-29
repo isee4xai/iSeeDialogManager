@@ -2,7 +2,7 @@
   "version": "0.1.0",
   "scope": "tree",
   "id": "26c9c380-bb4d-4c3b-8f3a-4aa00517273b",
-  "Instance": "EE_v2",
+  "Instance": "ee_demo",
   "description": "",
   "root": "2e0a60a6-2bdc-42b9-8a77-bbaf07689ffc",
   "properties": {},
@@ -760,8 +760,8 @@
     }
   },
   "display": {
-    "camera_x": -355.59999852254987,
-    "camera_y": 195.50000010430813,
+    "camera_x": -892.7999979741871,
+    "camera_y": 73.8000001758337,
     "camera_z": 0.75,
     "x": -12,
     "y": -192

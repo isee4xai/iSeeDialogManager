@@ -1,6 +1,5 @@
 import business.bt.nodes.node as node
 from business.bt.nodes.type import State
-import business.coordinator as c
 
 
 class PriorityNode(node.Node):
@@ -84,9 +83,13 @@ class ExplanationStrategyNode(SequenceNode):
 
         self.status = State.SUCCESS
         for child in self.children:
-            if (await child.tick() == State.FAILURE):
-                self.status = State.FAILURE
-                break
-
-        # back to parents node
+            await child.tick()
+        
+        # if needs remaining, set need incomple when exit
+        if self.co.get_questions():
+            self.co.modify_world("need", False)
+            # back to parents node
+            self.status = State.FAILURE
+        else:
+            self.status = State.SUCCESS
         return self.status
