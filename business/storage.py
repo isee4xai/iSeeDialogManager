@@ -141,9 +141,9 @@ class Usecase:
 
             temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
                     if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
-            # _intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
+            _intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
             #TODO for testing composite strategies
-            _intent_strategy_tree = tg.generate_tree_from_file('data/estrategy2.json', self.co)
+            # _intent_strategy_tree = tg.generate_tree_from_file('data/estrategy2.json', self.co)
             _intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
             _tree = bt.Tree(_intent_strategy_tree.root.children[0], _intent_strategy_tree.nodes)       
             if persona_id in self.p_i_expstrategy:
