@@ -389,8 +389,8 @@ class TargetQuestionNode(QuestionNode):
         # _question += '<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
 
         _question = "target instance"
-        q = s.Question(self.id, _question, s.ResponseType.INFO.value, True)
-        q.responseOptions = None
+        q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+        q.responseOptions = [s.Response("okay", "Okay")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
 
