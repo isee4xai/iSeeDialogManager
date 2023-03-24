@@ -67,7 +67,7 @@ class VariantNode(node.Node):
     async def navigate(self):
         _question = "Do you think we answered your question?"
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "No, I need clarification")]
+        q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "Yes, but I would like more explanation.")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.id)
         confirm_response = json.loads(self.co.check_world(self.id))

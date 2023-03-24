@@ -107,7 +107,7 @@ class Usecase:
 
     def set_personas(self):
         for case in self.json:
-            self.store("usecase_name", " ".join(case["http://www.w3.org/2000/01/rdf-schema#comment"].split("_")))
+            self.store("usecase_name", " ".join(case["http://www.w3.org/2000/01/rdf-schema#comment"].split("_")) if "_" in case["http://www.w3.org/2000/01/rdf-schema#comment"] else case["http://www.w3.org/2000/01/rdf-schema#comment"])
             # self.store(
             #     "ai_model_id", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["hasModelId"]["value"])
            
@@ -223,7 +223,6 @@ class Usecase:
                 q_node.variable = q_id
                 q_node.co = self.co
                 _options = q["http://www.w3id.org/iSeeOnto/userevaluation#hasResponseOptions"]["http://semanticscience.org/resource/SIO_000974"]
-                # print(_options)
                 q_node.options = {_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pairKey"]:_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pair_value_literal"] for _o in _options}
                 eval_strategy_node.children.append(q_node)
 

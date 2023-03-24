@@ -24,7 +24,6 @@ def generate_tree(parser, co):
         type = parser.bt_nodes[node_id]["Concept"]
         id = parser.bt_nodes[node_id]["id"]
         label = parser.bt_nodes[node_id]["Instance"]
-        # print(type, id, label)
 
         # create Node according to its type with factory
         currentNode = node_factory.makeNode(type, id, label)
@@ -101,7 +100,7 @@ def generate_tree(parser, co):
                                       for key, val in parser.bt_nodes[n]["properties"].items()}
 
         if parser.bt_nodes[n]["Concept"] == "Explanation Method":
-            nodes.get(n).params = parser.bt_nodes[n]["params"]
+            nodes.get(n).params = parser.bt_nodes[n]["params"] if "params" in parser.bt_nodes[n] else {}
             nodes.get(n).endpoint = parser.bt_nodes[n]["Instance"]
 
     root_id = parser.bt_root
