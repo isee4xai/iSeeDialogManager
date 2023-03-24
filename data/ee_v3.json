@@ -424,7 +424,7 @@
       "description": "",
       "properties": {
         "variable": "selected_need",
-        "question": "I want to understand what kind of explanation you want.  Select a question below if it is similar to what you would like to know, or tell me what you would like to know."
+        "question": "Please select a question below to indicate your explanation need"
       },
       "display": {
         "x": 984,

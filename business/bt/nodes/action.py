@@ -319,30 +319,33 @@ class ExplainerNode(node.Node):
 
     async def tick(self):
 
-        # random_instance = self.co.check_world("selected_target")
-        # explainer_query = {
-        #     "instance":random_instance ,
-        #     "method": self.endpoint,
-        #     # "params": self.params -> TODO: Needs Validation
-        # }
+        random_instance = self.co.check_world("selected_target")
+        explainer_query = {
+            "instance":random_instance['instance'],
+            "type":random_instance['type'],
+            "method": self.endpoint,
+            # "params": self.params TODO
+        }
+        explainer_result = self.co.get_secure_api_post("/model/explain", explainer_query)
+        
+        for o in explainer_result["meta"]["output_description"]:
+            output_description = explainer_result["meta"]["output_description"][o]
+        if explainer_result["type"] == 'image':
+            explanation_base64 = explainer_result["explanation"]
+            explanation = '<img width="700" src="data:image/png;base64,'+explanation_base64+'"/>'
+        if explainer_result["type"] == 'html':
+            explanation_html = explainer_result["explanation"]
+            explanation = explanation_html
 
-        # explainer_result = self.co.get_secure_api_post("/explainerResponse", explainer_query)
+        try:
+            technique = ''.join(map(lambda x: x if x.islower() else " "+x, self.endpoint.split("/")[-1]))
+        except:
+            technique = self.endpoint.split("/")[-1]
 
-        # output_description = ""
-        # # only needs a specific description, for now will take the last one
-        # for o in explainer_result["meta"]["output_description"]:
-        #     output_description = explainer_result["meta"]["output_description"][o]
+        _question = '<p>Here is an explanation from '+technique+' Technique</p>'
+        _question += explanation
+        _question += '<br><p><strong>Explanation Description:</strong> <br>'+output_description+'</p>'
 
-        # if self.endpoint == '/Tabular/LIME':
-        #     _question = '<p>Here is an explanation from LIME Explainability Technique</p>'
-        #     _question += html.lime_explanation(explainer_result, output_description)
-
-        # elif self.endpoint == '/Tabular/DisCERN':
-        #     _question = '<p>Here is an explanation from DisCERN Explainability Technique</p>'
-        #     output_description = "A table showing the original data instance and a counterfactual (similar instance with minor changes for which the AI system predicts a different outcome)."
-        #     _question += html.discern_explanation(random_instance, explainer_result, output_description)
-
-        _question = '<p>'+self.endpoint+'</p>'
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response("okay", "Okay")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
@@ -364,37 +367,30 @@ class TargetQuestionNode(QuestionNode):
         return ("TARGET "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        # random_instance = self.co.get_secure_api("/sampleDataInstance", {})
-        
-        # ai_model_query = {
-        #     "instance":random_instance['instance']
-        # }
+        random_instance = self.co.get_secure_api("/dataset/randomInstance", {})
 
-        # instance_json = random_instance["json"]
-        # #TODO meta_data = self.co.check_usecase("ai_model_meta")
-        # meta_data = '{\"target_names\":[\"loan_status\"],\"target_values\":[\"Rejected\",\"Accepted\"],\"features\":[{\"id\":\"loan_amnt\",\"min\":1000,\"max\":40000},{\"id\":\"total_pymnt\",\"min\":41.62,\"max\":44881.66051},{\"id\":\"total_rec_int\",\"min\":0,\"max\":7036.9},{\"id\":\"term\",\"values\":[\"36 months\",\"60 months\"]},{\"id\":\"int_rate\",\"min\":5.31,\"max\":30.79},{\"id\":\"installment\",\"min\":32.47,\"max\":1474.75},{\"id\":\"home_ownership\",\"values\":[\"Rent\",\"Own\",\"Mortgage\",\"Any\"]},{\"id\":\"annual_inc\",\"min\":3600,\"max\":700000},{\"id\":\"verification_status\",\"values\":[\"Source Verified\",\"Not Verified\",\"Verified\"]},{\"id\":\"loan_status\",\"values\":[\"Rejected\",\"Accepted\"]},{\"id\":\"purpose\",\"values\":[\"major purchase\",\"other\",\"home improvement\",\"debt consolidation\",\"house\",\"credit card\",\"car\",\"medical\",\"vacation\",\"small business\",\"moving\",\"renewable energy\"]}]}'
-        # meta_data = json.loads(meta_data)
+        ai_model_query = {
+            "instance":random_instance['instance'],
+            "top_classes": '1',
+            "type":random_instance['type']
+        }
 
-        # features = meta_data["features"]
-        # for item in [f for f in features if "values" in f and f["id"] not in meta_data["target_names"]]:
-        #     instance_json[item["id"]] = item["values"][int(instance_json[item["id"]])]
-        # for item in [f for f in features if "max" in f and f["id"] not in meta_data["target_names"]]:
-        #     instance_json[item["id"]] = round(float(instance_json[item["id"]])*float(item["max"]), 2)
+        instance_base64 = random_instance['instance'] 
+        instance = '<img width="200" src="data:image/png;base64,'+instance_base64+'"/>'
+        ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
 
-        # ai_model_result = self.co.get_secure_api_post("/predictResponse", ai_model_query)
+        _question = '<p>Here is your test instance:</p>'
+        _question += instance
+        _question += '<br><p>And here is the outcome from the AI system:</p>'
+        _question += '<p>Probability of fracture is '+str(round(float(ai_model_result[list(ai_model_result.keys())[0]])*100, 2))+'%.</p>'
 
-        # df_json = pd.json_normalize(json.loads(json.dumps(instance_json, indent=4)))
-        # outcome_json = pd.json_normalize(json.loads(json.dumps(ai_model_result, indent=4)))
-        # _question = '<p>Here is your loan application</p>'+html.target(df_json)
-        # _question += '<br><p>And here is the outcome from the AI system</p>'+html.target(outcome_json)
-
-        _question = "target instance"
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response("okay", "Okay")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
 
-        # self.co.modify_world(self.variable, random_instance['instance'])
+        # set selected target
+        self.co.modify_world(self.variable, random_instance)
         
         self.status = State.SUCCESS
         return self.status
