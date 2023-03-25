@@ -9,7 +9,7 @@ class BehaviourTree:
 
 	def __init__(self, co):
 
-		self.tree = tg.generate_tree_from_file("data/ee_v3.json", co)
+		self.tree = tg.generate_tree_from_file("data/ee_v4.json", co)
 		tg.printTree(self.tree.root)
 
 		self.logger = logger.Logger()
@@ -28,7 +28,7 @@ class BehaviourTree:
 		elif replace_node_type == "Evaluation Strategy":
 			strategy_node = [n for n in self.tree.nodes.values() if isinstance(n, EvaluationStrategyNode)][0]
 		strategy_node.children =[_sub_tree.root]
-		tg.printTree(self.tree.root)
+		# tg.printTree(self.tree.root)
 
 class Tree :
 	def __init__(self, root : node.Node, nodes : Dict[str, node.Node]) -> None:

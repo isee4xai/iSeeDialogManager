@@ -30,14 +30,14 @@ class ReplacementNode(node.Node):
             child.reset()
 
     async def navigate(self):
-        _question = "Do you think we answered your question?"
+        _question = "I can also show you something completely different"
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "No, I wanted something completely different.")]
+        q.responseOptions = [s.Response("no", "I'm okay"),s.Response("yes", "Yes, I wanted something completely different.")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.id)
         confirm_response = json.loads(self.co.check_world(self.id))
 
-        if self.co.is_positive(confirm_response["content"].lower()):
+        if not self.co.is_positive(confirm_response["id"].lower()):
             return State.SUCCESS
         return State.FAILURE
 
@@ -65,14 +65,14 @@ class VariantNode(node.Node):
             child.reset()
 
     async def navigate(self):
-        _question = "Do you think we answered your question?"
+        _question = "Would you like to verify using a different explainer?"
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "Yes, but I would like more explanation.")]
+        q.responseOptions = [s.Response("no", "No, I'm okay"),s.Response("yes", "Yes, I would like another explanation")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.id)
         confirm_response = json.loads(self.co.check_world(self.id))
 
-        if self.co.is_positive(confirm_response["content"].lower()):
+        if not self.co.is_positive(confirm_response["id"].lower()):
             return State.SUCCESS
         return State.FAILURE
 
@@ -100,14 +100,14 @@ class ComplementNode(node.Node):
             child.reset()
 
     async def navigate(self):
-        _question = "Do you think we answered your question?"
+        _question = "Would you like another perspective using a different explainer?"
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "I would like another explanation.")]
+        q.responseOptions = [s.Response("no", "No, I'm okay"),s.Response("yes", "Yes, I would like another perspective")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.id)
         confirm_response = json.loads(self.co.check_world(self.id))
 
-        if self.co.is_positive(confirm_response["content"].lower()):
+        if not self.co.is_positive(confirm_response["id"].lower()):
             return State.SUCCESS
         return State.FAILURE
 
@@ -135,13 +135,13 @@ class SupplementNode(node.Node):
             child.reset()
 
     async def navigate(self):
-        _question = "Do you think we answered your question?"
+        _question = "Would you like more information about this explanation?"
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "I would like more information.")]
+        q.responseOptions = [s.Response("no", "No, I'm okay"),s.Response("yes", "Yes, I would like more information")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.id)
         confirm_response = json.loads(self.co.check_world(self.id))
 
-        if self.co.is_positive(confirm_response["content"].lower()):
+        if not self.co.is_positive(confirm_response["id"].lower()):
             return State.SUCCESS
         return State.FAILURE

@@ -86,7 +86,7 @@ class ExplanationStrategyNode(SequenceNode):
             await child.tick()
         
         # if needs remaining, set need incomple when exit
-        if self.co.get_questions():
+        if self.co.get_questions() and self.co.check_usecase("selected_need") != "none":
             self.co.modify_world("need", False)
             # back to parents node
             self.status = State.FAILURE
