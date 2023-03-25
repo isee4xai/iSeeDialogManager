@@ -78,9 +78,7 @@ def generate_tree(parser, co):
         if parser.bt_nodes[n]["Concept"] == "Greeter":
             nodes.get(n).variable = parser.bt_nodes[n]["properties"]["variable"]
 
-        if (parser.bt_nodes[n]["Concept"] == "Failer"
-                or parser.bt_nodes[n]["Concept"] == "Succeeder"
-                or parser.bt_nodes[n]["Concept"] == "Information"):
+        if (parser.bt_nodes[n]["Concept"] == "Information"):
             nodes.get(n).message = parser.bt_nodes[n]["properties"]["message"]
 
         # only True or False values accepted; World need value, Usecase does not

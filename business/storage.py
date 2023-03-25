@@ -102,6 +102,7 @@ class Usecase:
         self.question_intent = {}
         # {persona_id: composite evaluation strategy}
         self.persona_evalstrategy = {}
+        self.empty_tree = tg.generate_tree_from_file("data/empty_es.json", self.co)
 
         self.set_personas()
 
@@ -142,14 +143,13 @@ class Usecase:
             temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
                     if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
             _intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
-            #TODO for testing composite strategies
-            # _intent_strategy_tree = tg.generate_tree_from_file('data/estrategy2.json', self.co)
+
             _intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
             _tree = bt.Tree(_intent_strategy_tree.root.children[0], _intent_strategy_tree.nodes)       
             if persona_id in self.p_i_expstrategy:
                 _i_strategy = self.p_i_expstrategy[persona_id]
             else:
-                _i_strategy = {}
+                _i_strategy = {"none":bt.Tree(self.empty_tree.root.children[0], self.empty_tree.nodes)}
             _i_strategy[_intent] = _tree
             self.p_i_expstrategy[persona_id] = _i_strategy
                 
@@ -198,6 +198,8 @@ class Usecase:
                 _i = self.question_intent[_k]
                 if not _is_ or (_is_ and _i not in _is_):
                     _qs[_k] = _v
+            if _is_ and _qs:
+                _qs["none"] = "I don't have any more questions"
         return _qs
 
     def init_persona_strategy(self):
@@ -229,9 +231,13 @@ class Usecase:
         self.persona_evalstrategy[self.get("selected_persona")] = bt.Tree(eval_strategy_node, None)            
 
     def get_persona_intent_explanation_strategy(self):
+        selected_need = self.get("selected_need")
         if self.get("selected_persona") and self.get("selected_persona") in self.p_i_expstrategy:
+            if selected_need == "none":
+                selected_intent = "none"
+            else:
+                selected_intent = self.question_intent[selected_need]
             _p_i_exs = self.p_i_expstrategy[self.get("selected_persona")]
-            selected_intent = self.question_intent[self.get("selected_need")]
             if selected_intent and selected_intent in _p_i_exs:
                 return _p_i_exs[selected_intent]
         return None
@@ -242,7 +248,12 @@ class Usecase:
         return None
 
     def modify_intent(self):
-        if self.get("selected_need"):
+        if not self.get("selected_need"):
+            return
+        if self.get("selected_need") == 'none':
+            for o in self.persona_intents[self.get("selected_persona")]:
+                self.co.modify_world(o, False)
+        else:
             q_id = self.get("selected_need")
             selected_intent = self.question_intent[q_id]
             current_intents = None
