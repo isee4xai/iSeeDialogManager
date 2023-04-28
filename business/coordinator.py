@@ -56,6 +56,9 @@ class Coordinator:
 
     def check_ontology(self, _variable):
         return self.ontology.get(_variable)
+    
+    def check_dataset_type(self):
+        return self.usecase.dataset_type_image()
 
     def get_personas(self):
         return self.usecase.get_personas()

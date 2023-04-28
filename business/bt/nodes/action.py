@@ -367,33 +367,108 @@ class TargetQuestionNode(QuestionNode):
         return ("TARGET "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        random_instance = self.co.get_secure_api("/dataset/randomInstance", {})
-
-        ai_model_query = {
-            "instance":random_instance['instance'],
-            "top_classes": '1',
-            "type":random_instance['type']
-        }
-
-        instance_base64 = random_instance['instance'] 
-        instance = '<img width="200" src="data:image/png;base64,'+instance_base64+'"/>'
-        ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
-
-        _question = '<p>Here is your test instance:</p>'
-        _question += instance
-        _question += '<br><p>And here is the outcome from the AI system:</p>'
-        _question += '<p>Probability of fracture is '+str(round(float(ai_model_result[list(ai_model_result.keys())[0]])*100, 2))+'%.</p>'
-
+        # select from data upload; data enter; and sampling
+        dataset_type_image = self.co.check_dataset_type()
+        if dataset_type_image:
+            _question = '<p>Would you like to upload a data instance or use sampling?</p>'
+            _response = s.Response("no", "I would like to upload")
+        else:
+            _question = '<p>Would you like to enter a data instance as an array or use sampling?</p>'
+            _response = s.Response("no", "I would like to enter")
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("okay", "Okay")]
+        q.responseOptions = [_response, s.Response("yes", "I will use sampling")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
-        await self.co.send_and_receive(_question, self.variable)
+        await self.co.send_and_receive(_question, "sampling_instance")
 
-        # set selected target
-        self.co.modify_world(self.variable, random_instance)
-        
-        self.status = State.SUCCESS
-        return self.status
+        is_sampling_response = json.loads(self.co.check_world("sampling_instance"))
+        if self.co.is_positive(is_sampling_response["id"].lower()):
+            random_instance = self.co.get_secure_api("/dataset/randomInstance", {})
+
+            ai_model_query = {
+                "instance":random_instance['instance'],
+                "top_classes": '1',
+                "type":random_instance['type']
+            }
+
+            instance_base64 = random_instance['instance'] 
+            instance = '<img width="200" src="data:image/png;base64,'+instance_base64+'"/>'
+            ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
+
+            _question = '<p>Here is your test instance:</p>'
+            _question += instance
+            _question += '<br><p>And here is the outcome from the AI system:</p>'
+            _question += '<p>Probability is '+str(round(float(ai_model_result[list(ai_model_result.keys())[0]])*100, 2))+'%.</p>'
+
+            q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+            q.responseOptions = [s.Response("okay", "Okay")]
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+            await self.co.send_and_receive(_question, self.variable)
+
+            # set selected target
+            self.co.modify_world(self.variable, random_instance)
+            
+            self.status = State.SUCCESS
+            return self.status
+        elif dataset_type_image:
+            _question = "Please upload your image. EXPECTATIONS TO GO HERE"
+            q = s.Question(self.id, _question, s.ResponseType.FILE.value, True)
+            q.responseOptions = []
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+            await self.co.send_and_receive(_question, "upload_instance_image")
+
+            upload_instance_image = json.loads(self.co.check_world("upload_instance_image"))
+            selected_instance = {}
+            selected_instance['instance'] = upload_instance_image["content"].split("data:image/png;base64,")[1].replace("/>", "")
+            selected_instance['type'] = 'image'
+
+            ai_model_query = {
+                "instance":selected_instance['instance'],
+                "top_classes": '1',
+                "type":selected_instance['type']
+            }
+
+            ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
+            _question = '<p>Here is the outcome from the AI system:</p>'
+            _question += '<p>Probability is '+str(round(float(ai_model_result[list(ai_model_result.keys())[0]])*100, 2))+'%.</p>'
+
+            q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+            q.responseOptions = [s.Response("okay", "Okay")]
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+            await self.co.send_and_receive(_question, self.variable)
+
+            self.co.modify_world(self.variable, selected_instance)
+            self.status = State.SUCCESS
+            return self.status
+        else:
+            _question = "Please enter your data instance as an array. EXPECTATIONS TO GO HERE"
+            q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
+            q.responseOptions = []
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+            await self.co.send_and_receive(_question, "upload_instance_open")
+
+            upload_instance_open = json.loads(self.co.check_world("upload_instance_open"))
+            selected_instance = {}
+            selected_instance['instance'] = upload_instance_open["content"]
+            selected_instance['type'] = 'TYPE'
+
+            ai_model_query = {
+                "instance":selected_instance['instance'],
+                "top_classes": '1',
+                "type":selected_instance['type']
+            }
+
+            ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
+            _question += '<br><p>Here is the outcome from the AI system:</p>'
+            _question += '<p>Probability is '+str(round(float(ai_model_result[list(ai_model_result.keys())[0]])*100, 2))+'%.</p>'
+
+            q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+            q.responseOptions = [s.Response("okay", "Okay")]
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+            await self.co.send_and_receive(_question, self.variable)
+
+            self.co.modify_world(self.variable, selected_instance)
+            self.status = State.SUCCESS
+            return self.status            
 
     def reset(self):
         if (self.status == State.SUCCESS):
@@ -409,7 +484,7 @@ class CompleteNode(node.Node):
 
     async def tick(self):
 
-        self.co.save_conversation()
+        # self.co.save_conversation()
         
         self.status = State.SUCCESS
         return self.status

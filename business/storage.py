@@ -13,6 +13,7 @@ class ResponseType(Enum):
     NUMBER = "Number"
     INFO = "Info"
     OPEN = "Free-Text"
+    FILE = "File"
 
 
 class Response:
@@ -90,6 +91,9 @@ class Usecase:
         self.storage = {}
         self.co = co
         self.json = self.co.get_secure_api("/casestructure", {})
+        # testing
+        # with open("data/CaseStructureData.json", 'r') as case_file:
+        #     self.json = json.load(case_file)
         # {persona_id: properties{}}
         self.personas = {}
         # {persona_id: intents[]}
@@ -112,6 +116,7 @@ class Usecase:
             # self.store(
             #     "ai_model_id", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["hasModelId"]["value"])
            
+            self.store("dataset_type", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#trainedOn"][0]["http://www.w3id.org/iSeeOnto/aimodel#hasDatasetType"]["instance"])
             self.store(
                 "ai_model_meta", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#hasCaseStructureMetaData"]["value"])
 
@@ -274,3 +279,6 @@ class Usecase:
             for o in other_intents:
                 self.co.modify_world(o, False)
             self.co.modify_world(selected_intent, True)
+
+    def dataset_type_image(self):
+        return self.get("dataset_type") == "http://www.w3id.org/iSeeOnto/explainer#image"
