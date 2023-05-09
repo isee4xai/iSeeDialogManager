@@ -282,19 +282,37 @@ class PersonaQuestionNode(QuestionNode):
             self.status = State.FAILURE
 
 
-class MultipleChoiceQuestionNode(QuestionNode):
+class EvaluationQuestionNode(QuestionNode):
     def __init__(self, id) -> None:
         super().__init__(id)
         self.options = {}
         self.type = None
+        self.min = 0
+        self.max = 0
 
     def toString(self):
-        return ("MULTIPLE CHOICE QUESTION "+str(self.status) + " " + str(self.id) + " " 
-                + str(self.question) + " " + str(self.variable))
+        return ("EVALUATION QUESTION "+str(self.status) + " " + str(self.id) + " " 
+                + str(self.question) + " " + str(self.type) + " " + str(self.variable))
 
     async def tick(self):
-        q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response(k,v) for k,v in self.options.items()]
+        responseType = None
+        if self.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question':
+            responseType = s.ResponseType.OPEN.value 
+        elif self.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Number_Question':
+            responseType = s.ResponseType.NUMBER.value 
+        elif self.type == 'http://www.w3id.org/iSeeOnto/userevaluation#MultipleChoiceNominalQuestion':
+            responseType = s.ResponseType.CHECK.value 
+        elif self.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Likert_Scale_Question':
+            responseType = s.ResponseType.LIKERT.value 
+        elif self.type == 'http://www.w3id.org/iSeeOnto/userevaluation#SingleChoiceNominalQuestion':
+            responseType = s.ResponseType.RADIO.value            
+
+        q = s.Question(self.id, self.question, responseType, True)
+        if responseType == 'http://www.w3id.org/iSeeOnto/userevaluation#Number_Question':
+            q.max = self.max
+            q.min = self.min
+        elif responseType != 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question': 
+            q.responseOptions = [s.Response(k,v) for k,v in self.options.items()]
 
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
