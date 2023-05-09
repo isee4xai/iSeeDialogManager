@@ -33,6 +33,8 @@ class Question:
         self.dimension = ""
         self.intent = ""
         self.validators = None
+        self.min = 0
+        self.max = 0
         self.answer: List[Response] = []
         self.required = required
 
@@ -225,13 +227,14 @@ class Usecase:
         if len(intent_case) > 0:
             for q in intent_case[0]["http://www.w3id.org/iSeeOnto/explanationexperience#hasOutcome"]["http://linkedu.eu/dedalo/explanationPattern.owl#isBasedOn"]:
                 q_id = q["instance"]
-                q_node = node_factory.makeNode("Multiple Choice Question", q_id, q_id)
+                q_node = node_factory.makeNode("Evaluation Question", q_id, q_id)
                 q_node.question = q["http://www.w3.org/2000/01/rdf-schema#comment"]
                 q_node.type = q["classes"][0]
                 q_node.variable = q_id
                 q_node.co = self.co
-                _options = q["http://www.w3id.org/iSeeOnto/userevaluation#hasResponseOptions"]["http://semanticscience.org/resource/SIO_000974"]
-                q_node.options = {_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pairKey"]:_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pair_value_literal"] for _o in _options}
+                if q_node.type not in ['http://www.w3id.org/iSeeOnto/userevaluation#Number_Question', 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question']:
+                    _options = q["http://www.w3id.org/iSeeOnto/userevaluation#hasResponseOptions"]["http://semanticscience.org/resource/SIO_000974"]
+                    q_node.options = {_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pairKey"]:_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pair_value_literal"] for _o in _options}
                 eval_strategy_node.children.append(q_node)
 
         self.persona_evalstrategy[self.get("selected_persona")] = bt.Tree(eval_strategy_node, None)            
