@@ -9,6 +9,13 @@ def persona(p):
     st+= "</div>"
     return st
 
+def table(_json):
+    st = '<div class=\"target-prediction\">'
+    _df = pd.json_normalize(_json)
+    st += _df.to_html(index=False)
+    st += "</div>"
+    return st    
+
 # def target(df):
 #     st = '<div class=\"target-prediction\">'
 #     st += df.to_html(index=False)
