@@ -32,9 +32,7 @@ class Question:
         self.completed = ""
         self.dimension = ""
         self.intent = ""
-        self.validators = None
-        self.min = 0
-        self.max = 0
+        self.validators = dict()
         self.answer: List[Response] = []
         self.required = required
 
@@ -93,7 +91,7 @@ class Usecase:
     def __init__(self, usecase_id, co) -> None:
         self.storage = {}
         self.co = co
-        self.json = self.co.get_secure_api("/casestructure", {})
+        self.json = self.co.get_secure_api_usecase("/casestructure", {})
         # testing
         # with open("data/CaseStructureData.json", 'r') as case_file:
         #     self.json = json.load(case_file)
@@ -118,7 +116,7 @@ class Usecase:
             self.store("usecase_name", " ".join(case["http://www.w3.org/2000/01/rdf-schema#comment"].split("_")) if "_" in case["http://www.w3.org/2000/01/rdf-schema#comment"] else case["http://www.w3.org/2000/01/rdf-schema#comment"])
             # self.store(
             #     "ai_model_id", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["hasModelId"]["value"])
-           
+            self.store("usecase_version", case["http://www.w3.org/2002/07/owl#versionInfo"])
             self.store("dataset_type", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#trainedOn"][0]["http://www.w3id.org/iSeeOnto/aimodel#hasDatasetType"]["instance"])
             self.store(
                 "ai_model_meta", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#hasCaseStructureMetaData"]["value"])
@@ -209,9 +207,18 @@ class Usecase:
             if _is_ and _qs:
                 _qs["none"] = "I don't have any more questions"
         return _qs
+    
+    def get_question(self, q_id):
+        if self.get("selected_persona") and self.persona_questions:
+            _qs_ = self.persona_questions[self.get("selected_persona")]
+            for _k, _v in _qs_.items():
+                if _k == q_id:
+                    return _v
+        return None
 
-    def init_persona_strategy(self):
-        None
+    def duplicate_question(self, _list, _q_text, _q_type):
+        _list_filtered = [item for item in _list if (item.question == _q_text and item.type == _q_type)]
+        return len(_list_filtered) > 0
 
     def modify_evaluation_strategy(self, _intent):
         if self.get("selected_persona") not in self.persona_evalstrategy:
@@ -230,11 +237,17 @@ class Usecase:
                 q_node = node_factory.makeNode("Evaluation Question", q_id, q_id)
                 q_node.question = q["http://www.w3.org/2000/01/rdf-schema#comment"]
                 q_node.type = q["classes"][0]
+                if self.duplicate_question(eval_strategy_node.children, q_node.question, q_node.type):
+                    continue
                 q_node.variable = q_id
                 q_node.co = self.co
                 if q_node.type not in ['http://www.w3id.org/iSeeOnto/userevaluation#Number_Question', 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question']:
                     _options = q["http://www.w3id.org/iSeeOnto/userevaluation#hasResponseOptions"]["http://semanticscience.org/resource/SIO_000974"]
                     q_node.options = {_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pairKey"]:_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pair_value_literal"] for _o in _options}
+                # assume max and min comes in the same order
+                if q_node.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Number_Question':
+                    q_node.validators["max"] = int(q["http://www.w3id.org/iSeeOnto/userevaluation#hasAnswerFrom"][0]["http://www.w3.org/ns/prov#value"]["value"])
+                    q_node.validators["min"] = int(q["http://www.w3id.org/iSeeOnto/userevaluation#hasAnswerFrom"][1]["http://www.w3.org/ns/prov#value"]["value"])
                 eval_strategy_node.children.append(q_node)
 
         self.persona_evalstrategy[self.get("selected_persona")] = bt.Tree(eval_strategy_node, None)            

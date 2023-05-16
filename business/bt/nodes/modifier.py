@@ -2,6 +2,7 @@ import business.bt.bt as bt
 import business.bt.nodes.node as node
 import business.bt.nodes.type as s
 import business.coordinator as c
+from datetime import datetime
 
 
 class UsecaseModifierNode(node.Node):
@@ -13,12 +14,15 @@ class UsecaseModifierNode(node.Node):
         return ("USECASE MODIFIER "+str(self.status) + " " + str(self.id) + " " + str(self.variable))
 
     async def tick(self):
+        self.start = datetime.now()
         self.co.modify_usecase(self.variable)
         val = self.co.check_usecase(self.variable)
         if val:
             self.status = s.State.SUCCESS
         else:
             self.status = s.State.FAILURE
+        self.end = datetime.now()
+        self.co.log(node=self)
         return self.status
 
     def reset(self):
@@ -36,10 +40,11 @@ class WorldModifierNode(node.Node):
         return ("WORLD MODIFIER "+str(self.status) + " " + str(self.id) + " " + str(self.variable) + " " + str(self.value))
 
     async def tick(self):
-
+        self.start = datetime.now()
         self.co.modify_world(self.variable, self.value)
         self.status = s.State.SUCCESS
-
+        self.end = datetime.now()
+        self.co.log(node=self)
         return self.status
 
     def reset(self):

@@ -1,7 +1,7 @@
 import business.bt.nodes.node as node
-from business.bt.nodes.type import State
+from business.bt.nodes.type import State,TargetType
 import business.coordinator as c
-import datetime
+from datetime import datetime
 import json
 import business.storage as s
 import business.bt.nodes.html_format as html
@@ -15,9 +15,6 @@ class ActionNode(node.Node):
         return ("ACTION "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-
-        # do_action()
-
         self.status = State.SUCCESS
         return self.status
 
@@ -35,8 +32,6 @@ class Failer(node.Node):
         return ("FAILER "+str(self.status) + " " + str(self.id) + " " + str(self.message))
 
     async def tick(self):
-
-        # do something
         self.status = State.FAILURE
         return self.status
 
@@ -53,8 +48,6 @@ class Succeder(node.Node):
         return ("SUCCEDER "+str(self.status) + " " + str(self.id) + " " + str(self.message))
 
     async def tick(self):
-
-        # do something
         self.status = State.SUCCESS
         return self.status
 
@@ -72,7 +65,6 @@ class QuestionNode(node.Node):
         return ("QUESTION "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
-        # ask question
         self.status = State.SUCCESS
         return self.status
 
@@ -89,6 +81,7 @@ class ConfirmNode(QuestionNode):
         return ("CONFIRM "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
+        self.start = datetime.now()
         q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "No") ]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
@@ -100,6 +93,8 @@ class ConfirmNode(QuestionNode):
             self.status = State.SUCCESS
         else:
             self.status = State.FAILURE
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -118,7 +113,8 @@ class GreeterNode(QuestionNode):
         return "GREETER " + str(self.status) + " " + str(self.id) + " " + str(self.variable)
 
     async def tick(self):
-        currentTime = datetime.datetime.now()
+        self.start = datetime.now()
+        currentTime = datetime.now()
         time_of_day = 0 if currentTime.hour < 12 else 1 if 12 <= currentTime.hour < 18 else 2
 
         end_user_name = self.co.check_world("user_name")
@@ -156,6 +152,8 @@ class GreeterNode(QuestionNode):
             await self.co.send(_question)
 
         self.status = State.SUCCESS
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -172,8 +170,6 @@ class InitialiserNode(ActionNode):
         return ("INITIALISER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-
-        # not used 
         self.status = State.SUCCESS
         return self.status
 
@@ -204,7 +200,6 @@ class KnowledgeQuestionNode(QuestionNode):
         #     self.co.modify_usecase(self.variable, response.lower())
 
         self.status = State.SUCCESS
-
         return self.status
 
     def reset(self):
@@ -222,6 +217,7 @@ class NeedQuestionNode(QuestionNode):
                 + str(self.variable) + " " + str(self.question_data))
 
     async def tick(self):
+        self.start = datetime.now()
         questions = self.co.get_questions()
         if questions:
             q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
@@ -237,7 +233,9 @@ class NeedQuestionNode(QuestionNode):
             self.co.modify_strategy()
             self.co.modify_evaluation()
             self.status = State.SUCCESS
-            return self.status
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        return self.status
         # allow free-text questions?
         # else:
         #     q = s.Question(self.id, self.question, s.ResponseType.OPEN.value, True)
@@ -264,6 +262,7 @@ class PersonaQuestionNode(QuestionNode):
         return "PERSONA " + str(self.status) + " " + str(self.id) + " " + str(self.question)
 
     async def tick(self):
+        self.start = datetime.now()
         q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         personas = self.co.get_personas()
         q.responseOptions = [s.Response(p, html.persona(personas[p])) for p in personas]
@@ -275,6 +274,8 @@ class PersonaQuestionNode(QuestionNode):
 
         self.co.modify_usecase(self.variable, _selected_persona["id"])
         self.status = State.SUCCESS
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -287,14 +288,14 @@ class EvaluationQuestionNode(QuestionNode):
         super().__init__(id)
         self.options = {}
         self.type = None
-        self.min = 0
-        self.max = 0
+        self.validators = dict()
 
     def toString(self):
         return ("EVALUATION QUESTION "+str(self.status) + " " + str(self.id) + " " 
                 + str(self.question) + " " + str(self.type) + " " + str(self.variable))
 
     async def tick(self):
+        self.start = datetime.now()
         responseType = None
         if self.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question':
             responseType = s.ResponseType.OPEN.value 
@@ -308,16 +309,17 @@ class EvaluationQuestionNode(QuestionNode):
             responseType = s.ResponseType.RADIO.value            
 
         q = s.Question(self.id, self.question, responseType, True)
-        if responseType == 'http://www.w3id.org/iSeeOnto/userevaluation#Number_Question':
-            q.max = self.max
-            q.min = self.min
-        elif responseType != 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question': 
+        if responseType == s.ResponseType.NUMBER.value:
+            q.validators = self.validators
+        elif responseType != s.ResponseType.OPEN.value: 
             q.responseOptions = [s.Response(k,v) for k,v in self.options.items()]
 
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
 
         self.status = State.SUCCESS
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -336,7 +338,7 @@ class ExplainerNode(node.Node):
         return ("EXPLAINER "+ str(self.status) + " " + str(self.id) + " " + str(self.endpoint) + " " + str(self.co))
 
     async def tick(self):
-
+        self.start = datetime.now()
         random_instance = self.co.check_world("selected_target")
         explainer_query = {
             "instance":random_instance['instance'],
@@ -344,7 +346,7 @@ class ExplainerNode(node.Node):
             "method": self.endpoint,
             # "params": self.params TODO
         }
-        explainer_result = self.co.get_secure_api_post("/model/explain", explainer_query)
+        explainer_result = self.co.get_secure_api_usecase_post("/model/explain", explainer_query)
         
         for o in explainer_result["meta"]["output_description"]:
             output_description = explainer_result["meta"]["output_description"][o]
@@ -370,6 +372,8 @@ class ExplainerNode(node.Node):
         await self.co.send_and_receive(_question, self.variable)
 
         self.status = State.SUCCESS
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable), selected_target=self.co.check_world("selected_target"))
         return self.status
 
     def reset(self):
@@ -385,21 +389,13 @@ class TargetQuestionNode(QuestionNode):
         return ("TARGET "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
 
     async def tick(self):
+        self.start = datetime.now()
         # select from data upload; data enter; and sampling
         dataset_type_image = self.co.check_dataset_type()
-        if dataset_type_image:
-            _question = '<p>Would you like to upload a data instance (.jpg, .png) or use inbuilt sampling method to select a data instance for testing?</p>'
-        else:
-            _question = '<p>Would you like to upload a data instance (.csv) or use inbuilt sampling method to select a data instance for testing?</p>'
-        q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
-        q.responseOptions = [s.Response("no", "I would like to upload"), s.Response("yes", "I will use sampling")]
-        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
-        await self.co.send_and_receive(_question, "sampling_instance")
-
-        is_sampling_response = json.loads(self.co.check_world("sampling_instance"))
+        is_sampling_response = json.loads(self.co.check_world("selected_target_type"))
         # if sampling an image
-        if self.co.is_positive(is_sampling_response["id"].lower()) and dataset_type_image:
-            random_instance = self.co.get_secure_api("/dataset/randomInstance", {})
+        if is_sampling_response["id"] == TargetType.SAMPLE.value and dataset_type_image:
+            random_instance = self.co.get_secure_api_usecase("/dataset/randomInstance", {})
 
             ai_model_query = {
                 "instance":random_instance['instance'],
@@ -409,7 +405,7 @@ class TargetQuestionNode(QuestionNode):
 
             instance_base64 = random_instance['instance'] 
             instance = '<img width="400" src="data:image/png;base64,'+instance_base64+'"/>'
-            ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
+            ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
 
             _question = '<p>Here is your test instance:</p>'
             _question += instance
@@ -420,15 +416,13 @@ class TargetQuestionNode(QuestionNode):
             q.responseOptions = [s.Response("okay", "Okay")]
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
             await self.co.send_and_receive(_question, self.variable)
+            self.co.modify_world("sampling_image_question", _question)
 
             # set selected target
             self.co.modify_world(self.variable, random_instance)
-            
-            self.status = State.SUCCESS
-            return self.status
         # if sampling and not image
-        elif self.co.is_positive(is_sampling_response["id"].lower()) and not dataset_type_image:
-            random_instance = self.co.get_secure_api("/dataset/randomInstance", {})
+        elif is_sampling_response["id"] == TargetType.SAMPLE.value and not dataset_type_image:
+            random_instance = self.co.get_secure_api_usecase("/dataset/randomInstance", {})
 
             ai_model_query = {
                 "instance":random_instance['instance'],
@@ -438,7 +432,7 @@ class TargetQuestionNode(QuestionNode):
 
             instance_json = random_instance['instance'] 
             instance =  html.table(instance_json)
-            ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
+            ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
 
             _question = '<p>Here is your test instance:</p>'
             _question += instance
@@ -449,12 +443,10 @@ class TargetQuestionNode(QuestionNode):
             q.responseOptions = [s.Response("okay", "Okay")]
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
             await self.co.send_and_receive(_question, self.variable)
+            self.co.modify_world("sampling_csv_question", _question)
 
             # set selected target
             self.co.modify_world(self.variable, random_instance)
-            
-            self.status = State.SUCCESS
-            return self.status
         # upload image
         elif dataset_type_image:
             _question = "Please upload your data instance."
@@ -474,7 +466,7 @@ class TargetQuestionNode(QuestionNode):
                 "type":selected_instance['type']
             }
 
-            ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
+            ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
             _question = '<p>Here is the outcome from the AI system:</p>'
             _question += html.table(ai_model_result)
 
@@ -482,10 +474,9 @@ class TargetQuestionNode(QuestionNode):
             q.responseOptions = [s.Response("okay", "Okay")]
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
             await self.co.send_and_receive(_question, self.variable)
+            self.co.modify_world("upload_image_question", _question)
 
             self.co.modify_world(self.variable, selected_instance)
-            self.status = State.SUCCESS
-            return self.status
         # upload csv
         else:
             _question = "Please upload your data instance."
@@ -505,7 +496,7 @@ class TargetQuestionNode(QuestionNode):
                 "type":selected_instance['type']
             }
 
-            ai_model_result = self.co.get_secure_api_post("/model/predict", ai_model_query)
+            ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
             _question = '<br><p>Here is the outcome from the AI system:</p>'
             _question += html.table(ai_model_result)
 
@@ -513,10 +504,44 @@ class TargetQuestionNode(QuestionNode):
             q.responseOptions = [s.Response("okay", "Okay")]
             _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
             await self.co.send_and_receive(_question, self.variable)
+            self.co.modify_world("upload_csv_question", _question)
 
             self.co.modify_world(self.variable, selected_instance)
-            self.status = State.SUCCESS
-            return self.status            
+        self.status = State.SUCCESS
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        return self.status            
+
+    def reset(self):
+        if (self.status == State.SUCCESS):
+            self.status = State.FAILURE
+
+
+class TargetTypeQuestionNode(QuestionNode):
+    def __init__(self, id) -> None:
+        super().__init__(id)
+
+    def toString(self):
+        return ("TARGET TYPE"+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
+
+    async def tick(self):
+        self.start = datetime.now()
+        # select from data upload; data enter; and sampling
+        dataset_type_image = self.co.check_dataset_type()
+        if dataset_type_image:
+            _question = '<p>Would you like to upload a data instance (.jpg, .png) or use inbuilt sampling method to select a data instance for testing?</p>'
+        else:
+            _question = '<p>Would you like to upload a data instance (.csv) or use inbuilt sampling method to select a data instance for testing?</p>'
+        q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+        q.responseOptions = [s.Response("UPLOAD", "I would like to upload"), s.Response("SAMPLE", "I will use sampling")]
+        _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+
+        await self.co.send_and_receive(_question, self.variable)
+        # if sampling an image
+        self.status = State.SUCCESS
+        self.end = datetime.now()
+        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        return self.status            
 
     def reset(self):
         if (self.status == State.SUCCESS):
@@ -531,10 +556,40 @@ class CompleteNode(node.Node):
         return ("COMPLETE "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-
-        # self.co.save_conversation()
-        
+        self.start = datetime.now()
         self.status = State.SUCCESS
+        self.end = datetime.now()
+        self.co.log(node=self)
+        return self.status
+
+    def reset(self):
+        self.status = State.FAILURE   
+
+class UserQuestionNode(QuestionNode):
+    def __init__(self, id) -> None:
+        super().__init__(id)
+        self.params = None
+
+    def toString(self):
+        return ("USER QUESTION "+str(self.status) + " " + str(self.id) + " " + str(self.question) + " " + str(self.variable))
+
+    async def tick(self):
+        self.start = datetime.now()
+        selected_q_id = self.co.check_usecase("selected_need")
+        selected_q = self.co.get_question_by_id(selected_q_id)
+        questions = [self.params["Question"]["value"].lower()] if ";" not in self.params["Question"]["value"].lower() else [f.lower() for f in self.params["Question"]["value"].lower().split(";")]
+        match = selected_q.lower() in questions
+        content = {
+            "content": selected_q,
+            "id": selected_q_id,
+            "match": match
+        }
+        if match:
+            self.status = State.SUCCESS
+        else:
+            self.status = State.FAILURE
+        self.end = datetime.now()
+        self.co.log(node=self, variable=content)
         return self.status
 
     def reset(self):

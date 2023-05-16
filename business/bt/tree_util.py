@@ -71,7 +71,8 @@ def generate_tree(parser, co):
                 or parser.bt_nodes[n]["Concept"] == "Persona Question"
                 or parser.bt_nodes[n]["Concept"] == "Knowledge Question"
                 or parser.bt_nodes[n]["Concept"] == "Confirm Question"
-                or parser.bt_nodes[n]["Concept"] == "Target Question"):
+                or parser.bt_nodes[n]["Concept"] == "Target Question"
+                or parser.bt_nodes[n]["Concept"] == "Target Type Question"):
             nodes.get(n).question = parser.bt_nodes[n]["properties"]["question"]
             nodes.get(n).variable = parser.bt_nodes[n]["properties"]["variable"]
 
@@ -96,13 +97,21 @@ def generate_tree(parser, co):
                 or parser.bt_nodes[n]["Concept"] == "Condition"):
             nodes.get(n).variables = {key: bool(val if val == "True" else "")
                                       for key, val in parser.bt_nodes[n]["properties"].items()}
+        
+        if parser.bt_nodes[n]["Concept"] == "Equal Value":
+            nodes.get(n).variables = {key: val
+                                      for key, val in parser.bt_nodes[n]["properties"].items()}
 
         if parser.bt_nodes[n]["Concept"] == "Explanation Method":
             nodes.get(n).params = parser.bt_nodes[n]["params"] if "params" in parser.bt_nodes[n] else {}
             nodes.get(n).endpoint = parser.bt_nodes[n]["Instance"]
 
+        if parser.bt_nodes[n]["Concept"] == "User Question":
+            nodes.get(n).params = parser.bt_nodes[n]["params"] if "params" in parser.bt_nodes[n] else {}
+
     root_id = parser.bt_root
     root = node.RootNode('0')
+    root.co = co
     root.children.append(nodes.get(root_id))
 
     return bt.Tree(root, nodes)

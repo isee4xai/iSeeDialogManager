@@ -1,8 +1,8 @@
 from business.bt.nodes.action import ActionNode, Succeder, Failer, GreeterNode, InitialiserNode, KnowledgeQuestionNode, TargetQuestionNode
 from business.bt.nodes.action import QuestionNode, NeedQuestionNode, PersonaQuestionNode, ExplainerNode, EvaluationQuestionNode, CompleteNode
-from business.bt.nodes.action import ConfirmNode 
+from business.bt.nodes.action import ConfirmNode, TargetTypeQuestionNode, UserQuestionNode
 from business.bt.nodes.modifier import UsecaseModifierNode, WorldModifierNode
-from business.bt.nodes.condition import ConditionNode, EqualNode
+from business.bt.nodes.condition import ConditionNode, EqualNode, EqualValueNode
 from business.bt.nodes.composite import SequenceNode, PriorityNode, EvaluationStrategyNode, ExplanationStrategyNode
 from business.bt.nodes.hybrid import SupplementNode, ComplementNode, ReplacementNode, VariantNode
 from business.bt.nodes.decorator import LimitActivationNode, RepeatNode, RepTillFailNode, RepTillSuccNode, InverterNode
@@ -34,6 +34,8 @@ def makeNode(type, id, label):
         res = KnowledgeQuestionNode(id)
     elif type == "Target Question":
         res = TargetQuestionNode(id)
+    elif type == "Target Type Question":
+        res = TargetTypeQuestionNode(id)
     elif type == "Persona Question":
         res = PersonaQuestionNode(id)
     elif type == "Initialiser":
@@ -44,11 +46,15 @@ def makeNode(type, id, label):
         res = ConfirmNode(id)
     elif type == "Complete":
         res = CompleteNode(id)
+    elif type == "User Question":
+        res = UserQuestionNode(id)
 
     elif type == "Condition":
         res = ConditionNode(id)
     elif type == "Equal":
         res = EqualNode(id)
+    elif type == "Equal Value":
+        res = EqualValueNode(id)
 
     elif type == "Priority":
         res = PriorityNode(id)
