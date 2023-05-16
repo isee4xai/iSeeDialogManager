@@ -1,4 +1,3 @@
-import ui.logger as logger
 import business.bt.tree_util as tg
 import business.bt.nodes.node as node
 from typing import Dict
@@ -8,12 +7,8 @@ from business.bt.nodes.composite import ExplanationStrategyNode, EvaluationStrat
 class BehaviourTree:
 
 	def __init__(self, co):
-
-		self.tree = tg.generate_tree_from_file("data/ee_v4.json", co)
+		self.tree = tg.generate_tree_from_file("data/ee_v5.json", co)
 		tg.printTree(self.tree.root)
-
-		self.logger = logger.Logger()
-
 
 	async def run(self):
 		await self.tree.root.tick()

@@ -2,6 +2,7 @@ import business.bt.nodes.node as node
 from business.bt.nodes.type import State
 from business.bt.nodes.action import QuestionNode
 import business.storage as s
+from datetime import datetime
 import json
 
 class ReplacementNode(node.Node):
@@ -14,13 +15,15 @@ class ReplacementNode(node.Node):
         return ("REPLACEMENT "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
+        self.start = datetime.now()
         for idx, child in enumerate(self.children):
             await child.tick()
             # if not last child
             if idx < len(self.children)-1 and await self.navigate() == State.SUCCESS:
                 self.status = State.SUCCESS
                 break
-
+        self.end = datetime.now()            
+        self.co.log(node=self)
         return self.status
         # back to parents node
 
@@ -52,12 +55,17 @@ class VariantNode(node.Node):
         return ("VARIANT "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
+        self.start = datetime.now()
         for idx, child in enumerate(self.children):
             await child.tick()
             # if not last child
             if idx < len(self.children)-1 and await self.navigate() == State.SUCCESS:
                 self.status = State.SUCCESS
                 break
+
+        self.end = datetime.now()            
+        self.co.log(node=self)
+        return self.status
 
     def reset(self):
         self.status = State.FAILURE
@@ -87,12 +95,16 @@ class ComplementNode(node.Node):
         return ("COMPLEMENT "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
+        self.start = datetime.now()
         for idx, child in enumerate(self.children):
             await child.tick()
             # if not last child
             if idx < len(self.children)-1 and await self.navigate() == State.SUCCESS:
                 self.status = State.SUCCESS
                 break
+        self.end = datetime.now() 
+        self.co.log(node=self)           
+        return self.status
 
     def reset(self):
         self.status = State.FAILURE
@@ -122,12 +134,17 @@ class SupplementNode(node.Node):
         return ("SUPPLEMENT "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
+        self.start = datetime.now()
         for idx, child in enumerate(self.children):
             await child.tick()
             # if not last child
             if idx < len(self.children)-1 and await self.navigate() == State.SUCCESS:
                 self.status = State.SUCCESS
                 break
+        
+        self.end = datetime.now()            
+        self.co.log(node=self)
+        return self.status
 
     def reset(self):
         self.status = State.FAILURE

@@ -17,3 +17,7 @@ class NodeType(Enum):
     LIMITXACTIVATION = 9
     SUCCEEEDER = 10
     FAILER = 11
+
+class TargetType(Enum):
+      UPLOAD="UPLOAD"
+      SAMPLE="SAMPLE"

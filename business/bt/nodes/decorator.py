@@ -1,6 +1,6 @@
 import business.bt.nodes.node as node
 from business.bt.nodes.type import State
-
+from datetime import datetime
 
 class InverterNode(node.Node):
     def __init__(self, id) -> None:
@@ -12,11 +12,13 @@ class InverterNode(node.Node):
         return ("INVERTER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
+        self.start = datetime.now()
         if (await self.children[0].tick() == State.SUCCESS):
             self.status = State.FAILURE
         else:
             self.status = State.SUCCESS
-
+        self.end = datetime.now()
+        self.co.log(node=self)
         return self.status
 
     def reset(self):
@@ -36,13 +38,14 @@ class LimitActivationNode(node.Node):
         return ("LIMIT "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-
+        self.start = datetime.now()
         if (self.timesActivated < self.limit):
             self.timesActivated += 1
             self.status = await self.children[0].tick()
         else:
             self.status = State.SUCCESS
-
+        self.end = datetime.now()
+        self.co.log(node=self)
         return self.status
 
     def reset(self):
@@ -75,7 +78,7 @@ class RepTillFailNode(node.Node):
         return ("REP TILL FAIL "+str(self.status) + " " + str(self.id))
 
     async def tick(self, predecessor: "Node"):
-
+        self.start = datetime.now()
         if (not (predecessor in self.children[0])):
 
             # we check the first child (if it has one)
@@ -93,7 +96,8 @@ class RepTillFailNode(node.Node):
             while (self.status == State.SUCCESS):
 
                 self.status = await self.children[0].tick()
-
+        self.end = datetime.now()
+        self.co.log(node=self)
         return self.status
 
     def reset(self):
@@ -132,10 +136,12 @@ class RepTillSuccNode(node.Node):
         # return self.status
 
     async def tick(self):
+        self.start = datetime.now()
         self.status = State.FAILURE
         while self.status == State.FAILURE:
             self.status = await self.children[0].tick()
-
+        self.end = datetime.now()
+        self.co.log(node=self)
         return self.status
 
     def reset(self):
