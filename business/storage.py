@@ -219,6 +219,12 @@ class Usecase:
     def duplicate_question(self, _list, _q_text, _q_type):
         _list_filtered = [item for item in _list if (item.question == _q_text and item.type == _q_type)]
         return len(_list_filtered) > 0
+    
+    def reorder_eval_questions(self, nodes):
+        new_nodes = []
+        new_nodes.extend([n for n in nodes if n.type != 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question'])
+        new_nodes.extend([n for n in nodes if n.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question'])
+        return new_nodes
 
     def modify_evaluation_strategy(self, _intent):
         if self.get("selected_persona") not in self.persona_evalstrategy:
@@ -249,7 +255,7 @@ class Usecase:
                     q_node.validators["max"] = int(q["http://www.w3id.org/iSeeOnto/userevaluation#hasAnswerFrom"][0]["http://www.w3.org/ns/prov#value"]["value"])
                     q_node.validators["min"] = int(q["http://www.w3id.org/iSeeOnto/userevaluation#hasAnswerFrom"][1]["http://www.w3.org/ns/prov#value"]["value"])
                 eval_strategy_node.children.append(q_node)
-
+        eval_strategy_node.children = self.reorder_eval_questions(eval_strategy_node.children)
         self.persona_evalstrategy[self.get("selected_persona")] = bt.Tree(eval_strategy_node, None)            
 
     def get_persona_intent_explanation_strategy(self):
