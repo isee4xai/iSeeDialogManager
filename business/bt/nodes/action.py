@@ -118,12 +118,8 @@ class GreeterNode(QuestionNode):
         time_of_day = 0 if currentTime.hour < 12 else 1 if 12 <= currentTime.hour < 18 else 2
 
         usecase_name = self.co.check_usecase("usecase_name")
-        if usecase_name.lower() == 'loan approval system':
-            end_user_name = json.loads(self.co.check_world("prolific_id"))['content']
-        else:
-            end_user_name = self.co.check_world("user_name")
+        end_user_name = self.co.check_world("user_name")
 
-        
         if self.co.check_world("initialise") and not self.co.check_world("proceed"):
             _question = self.greet_text[time_of_day] + " " + end_user_name + "!<br>"
             _question += "I am the iSee Chatbot for " + usecase_name + ", "
@@ -146,8 +142,8 @@ class GreeterNode(QuestionNode):
                 proceed_response = json.loads(self.co.check_world(self.variable))
         else:
             _question = "Thank you for using iSee!" +"\n"
-            if usecase_name.lower() == 'loan approal system':
-                _question += "Here is your Prolific Completion Code " +"\n"
+            if usecase_name.lower() == 'loan approval system':
+                _question += "Here is your Prolific Completion Code: C3IZV4R5." +"\n"
             _question += "See you again soon!"
 
             q = s.Question(self.id, _question, s.ResponseType.INFO.value, False)
@@ -175,18 +171,6 @@ class InitialiserNode(ActionNode):
         return ("INITIALISER "+str(self.status) + " " + str(self.id))
 
     async def tick(self):
-        self.start = datetime.now()
-        usecase_name = self.co.check_usecase("usecase_name")
-        if usecase_name.lower() == 'loan approval system':
-            _question = "Hello, Welcome to the Explanation Experience user study. Please enter your Prolific ID to continute."
-            q = s.Question(self.id, _question, s.ResponseType.OPEN.value, True)
-            q.responseOptions = []
-            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
-
-            await self.co.send_and_receive(_question, self.variable)
-            self.end = datetime.now()
-            self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
-
         self.status = State.SUCCESS
         return self.status
 
@@ -553,8 +537,10 @@ class TargetTypeQuestionNode(QuestionNode):
         q.responseOptions = [s.Response("UPLOAD", "I would like to upload"), s.Response("SAMPLE", "I will use sampling")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
-        await self.co.send_and_receive(_question, self.variable)
-        # if sampling an image
+        # await self.co.send_and_receive(_question, self.variable)
+        # for user study always sample
+        self.co.modify_world(self.variable, json.dumps({"id": "SAMPLE", "content": "I will use sampling"}))
+
         self.status = State.SUCCESS
         self.end = datetime.now()
         self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
