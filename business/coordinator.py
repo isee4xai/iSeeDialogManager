@@ -89,7 +89,7 @@ class Coordinator:
             "x-access-token": self.world.storage.get("user_token")
         }
 
-        url = API_BASE + "usecases/" + self.world.get("usecase_id") + path
+        url = API_BASE + "usecases_shared/" + self.world.get("usecase_id") + path
 
         return api.request(url, params, headers)
 
@@ -98,7 +98,7 @@ class Coordinator:
             "Content-Type": "application/json",
             "x-access-token": self.world.storage.get("user_token")
         }
-        url = API_BASE + "usecases/" + self.world.get("usecase_id") + path
+        url = API_BASE + "usecases_shared/" + self.world.get("usecase_id") + path
         return api.requestPOST(url, body, headers)
 
     def get_secure_api_interaction(self):
