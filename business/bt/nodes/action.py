@@ -637,7 +637,6 @@ class UserQuestionNode(QuestionNode):
         selected_q = self.co.get_question_by_id(selected_q_id)
         questions = [self.params["Question"].lower()] if ";" not in self.params["Question"].lower() else [f.lower() for f in self.params["Question"].lower().split(";")]
         match = selected_q.strip().lower() in questions
-
         content = {
             "content": selected_q,
             "id": selected_q_id,
