@@ -4,6 +4,7 @@ import business.bt.bt as bt
 from typing import List
 from enum import Enum
 import json
+import random
 
 
 class ResponseType(Enum):
@@ -91,10 +92,10 @@ class Usecase:
     def __init__(self, usecase_id, co) -> None:
         self.storage = {}
         self.co = co
-        self.json = self.co.get_secure_api_usecase("/casestructure", {})
+        # self.json = self.co.get_secure_api_usecase("/casestructure", {})
         # testing
-        # with open("data/CaseStructureData.json", 'r') as case_file:
-        #     self.json = json.load(case_file)
+        with open("data/loan-approval-case.json", 'r') as case_file:
+            self.json = json.load(case_file)
         # {persona_id: properties{}}
         self.personas = {}
         # {persona_id: intents[]}
@@ -109,6 +110,11 @@ class Usecase:
         self.persona_evalstrategy = {}
         self.empty_tree = tg.generate_tree_from_file("data/empty_es.json", self.co)
 
+        instance_index = random.choice([1,2])
+        with open("data/instance_"+str(instance_index)+".json", 'r') as instance_file:
+            exp_data = json.load(instance_file)
+        self.storage["instance"] = exp_data
+        
         self.set_personas()
 
     def set_personas(self):
