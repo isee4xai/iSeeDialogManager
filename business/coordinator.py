@@ -28,6 +28,7 @@ class Coordinator:
         self.world.store("user_name", j_data["user"]["name"])
         # self.user = storage.User(j_data["user"], self)
         self.usecase = storage.Usecase(j_data["usecase_id"], self)
+        # self.get_secure_api_interaction()
 
     async def start(self):
         await self.bt.run()
@@ -108,8 +109,11 @@ class Coordinator:
         }
         url = API_BASE + "interaction/usecase/" + self.world.get("usecase_id")
         data = api.request(url, {}, headers)
-        with open('history_all.json', 'w') as f:
-            json.dump(data, f)
+        # for item in data:
+        #     url = API_BASE + "interaction/usecase/" + self.world.get("usecase_id")+"/json/"+item["_id"]
+        #     interactions = api.request(url, {}, headers)
+        #     with open(item["_id"]+'.json', 'w') as f:
+        #         json.dump(interactions, f)
 
     def get_secure_api_interaction_post(self, body):
         headers = {

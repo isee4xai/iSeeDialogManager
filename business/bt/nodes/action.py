@@ -6,7 +6,7 @@ import json
 import business.storage as s
 import business.bt.nodes.html_format as html
 import pandas as pd
-
+import asyncio
 class ActionNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
@@ -122,8 +122,13 @@ class GreeterNode(QuestionNode):
 
         if self.co.check_world("initialise") and not self.co.check_world("proceed"):
             _question = self.greet_text[time_of_day] + " " + end_user_name + "!<br>"
-            _question += "I am the iSee Chatbot for " + usecase_name + ", "
-            _question += "Would you like to proceed?"
+            _question += "<p>I am the iSee Chatbot for the " + usecase_name + "</p>"
+            _question += "<p>Before we begin, here are a few helpful reminders:</p>"
+            _question += "<p>The iSee chatbot is a tool to <strong>help understand Loan Approval AI system decisions as if you were a loan applicant</strong>, through Explainability Techniques.</p> <p>The iSee Chatbot will guide you through your loan application, the AI decision, and provide explanations for your chosen questions. Towards the end, you will have the opportunity to answer a few questions and provide descriptive feedback. We refer to this interactive conversation as an <i>Explanation Experience.</i></p>"
+            _question += "<p>Please remember to take your time reading and understanding the chatbot's messages. Each prompt influences the path of our conversation and impacts your overall experience. </p>"
+            _question += "<p>This system is continuously being improved. Some responses may take a bit longer due to background algorithms running for explanations. If a response takes more than 60 seconds, please restart the conversation using the button in the top-right corner.</p>"
+            _question += "<p>At the end of the conversation, you will be asked to provide feedback with a minimum of 100 words. Please ensure that your feedback is constructive in order to help improve this tool. We would like to hear detailed feedback about the features you found useful and suggestions for improvement. Your feedback will be manually reviewed by the researchers involved in the project.</p>"
+            _question += "<p>Would you like to proceed?</p>"
 
             q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
             q.responseOptions = [s.Response("yes", "Yes"),s.Response("no", "No") ]
@@ -221,6 +226,11 @@ class NeedQuestionNode(QuestionNode):
         self.start = datetime.now()
         questions = self.co.get_questions()
         if questions:
+            no_more = [q for k, q in questions.items() if q=="I don't have any more questions"]
+            if no_more:
+                self.question = "<p>Would you like to ask another question you may have about the AI system's decision? Similar questions are grouped by colour for convenience. Once you have selected a question, we will use an explanation technique to provide you with insights. Please keep in mind that certain explanations may take around 20-30 seconds to complete.</p> <p>If you have any other questions that are not listed here, feel free to include it in your feedback for future improvements.</p>"
+            else:
+                self.question = "<p>Having reviewed both the loan application and the AI system's decision, we're eager to address any questions you may have about the AI system's decision. We have prepared a set of questions for you to choose from, designed to shed light on the decision-making process. Similar questions are grouped by colour for convenience. Once you have selected a question, we will use an explanation technique to provide you with insights. Please keep in mind that certain explanations may take around 20-30 seconds to complete.</p> <p>If you have any other questions that are not listed here, feel free to include it in your feedback for future improvements.</p>"
             q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
             q.responseOptions = [s.Response(k, q) for k, q in questions.items()]
 
@@ -264,6 +274,7 @@ class PersonaQuestionNode(QuestionNode):
 
     async def tick(self):
         self.start = datetime.now()
+        self.question = "Let's set up your role for this conversation. In this session, you'll be taking on the persona of a loan applicant who isn't familiar with the loan approval process, artificial intelligence techniques, or explanations. This way, we can make sure our conversation is clear and easy to understand for you. Please choose and confirm this role to continue."
         q = s.Question(self.id, self.question, s.ResponseType.RADIO.value, True)
         personas = self.co.get_personas()
         q.responseOptions = [s.Response(p, html.persona(personas[p])) for p in personas]
@@ -340,32 +351,65 @@ class ExplainerNode(node.Node):
 
     async def tick(self):
         self.start = datetime.now()
-        random_instance = self.co.check_world("selected_target")
+        # random_instance = self.co.check_world("selected_target")
+        # explainer_query = {
+        #     "instance":random_instance['instance'],
+        #     "type":random_instance['type'],
+        #     "method": self.endpoint,
+        #     # "params": self.params TODO
+        # }
+        random_instance = self.co.check_usecase("instance")['instance_json']
         explainer_query = {
-            "instance":random_instance['instance'],
-            "type":random_instance['type'],
+            "instance":random_instance,
             "method": self.endpoint,
-            # "params": self.params TODO
+            "type":'dict'
         }
-        explainer_result = self.co.get_secure_api_usecase_post("/model/explain", explainer_query)
-        
-        for o in explainer_result["meta"]["output_description"]:
-            output_description = explainer_result["meta"]["output_description"][o]
-        if explainer_result["type"] == 'image':
-            explanation_base64 = explainer_result["explanation"]
-            explanation = '<img src="data:image/png;base64,'+explanation_base64+'"/>'
-        if explainer_result["type"] == 'html':
-            explanation_html = explainer_result["explanation"]
+        # explainer_result = self.co.get_secure_api_usecase_post("/model/explain", explainer_query)
+        if self.endpoint == '/Tabular/LIME':
+            await asyncio.sleep(25)
+            temp_ex = self.co.check_usecase("instance")['lime_ex']
+            temp_desc = self.co.check_usecase("instance")['lime_desc']
+            temp_type = 'image'
+            temp_tech = "LIME Algorithm"
+            temp_width = 1100
+        elif self.endpoint == '/Tabular/KernelSHAPLocal':
+            await asyncio.sleep(35)
+            temp_ex = self.co.check_usecase("instance")['shap_ex']
+            temp_desc = self.co.check_usecase("instance")['shap_desc']
+            temp_type = 'image'
+            temp_tech = "Kernel SHAP Algorithm"
+            temp_width = 600
+        elif self.endpoint == '/Misc/AIModelPerformance':
+            await asyncio.sleep(5)
+            temp_ex = self.co.check_usecase("instance")['perf_ex']
+            temp_desc = self.co.check_usecase("instance")['perf_desc']
+            temp_type = 'html'
+            temp_tech = 'AI Model Performance'
+        elif self.endpoint == '/Tabular/DisCERN':
+            await asyncio.sleep(15)
+            temp_ex = self.co.check_usecase("instance")['discern_ex']
+            temp_desc = self.co.check_usecase("instance")['discern_desc']
+            temp_type = 'html'
+            temp_tech = 'DisCERN Counterfactual Algorithm'
+
+        # for o in explainer_result["meta"]["output_description"]:
+        #     output_description = explainer_result["meta"]["output_description"][o]
+        if temp_type == 'image':
+            explanation_base64 = temp_ex
+            explanation = '<img src="data:image/png;base64,'+explanation_base64+'" style=" width: '+str(temp_width)+'px; "/>'
+        if temp_type == 'html':
+            explanation_html = temp_ex
             explanation = explanation_html
 
-        try:
-            technique = ''.join(map(lambda x: x if x.islower() else " "+x, self.endpoint.split("/")[-1]))
-        except:
-            technique = self.endpoint.split("/")[-1]
+        # try:
+        #     technique = ''.join(map(lambda x: x if x.islower() else " "+x, self.endpoint.split("/")[-1]))
+        # except:
+        #     technique = self.endpoint.split("/")[-1]
 
-        _question = '<p>Here is an explanation from '+technique+' Technique</p>'
-        _question += explanation
-        _question += '<br><p><strong>Explanation Description:</strong> <br>'+output_description+'</p>'
+        # _question = '<p> '+temp_tech+' </p>'
+        _question = explanation
+        _question += '<p>'+temp_desc+'</p>'
+        _question += "Once you are ready, please confirm to proceed."
 
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response("okay", "Okay")]
@@ -423,22 +467,33 @@ class TargetQuestionNode(QuestionNode):
             self.co.modify_world(self.variable, random_instance)
         # if sampling and not image
         elif is_sampling_response["id"] == TargetType.SAMPLE.value and not dataset_type_image:
-            random_instance = self.co.get_secure_api_usecase("/dataset/randomInstance", {})
-
+            # random_instance = self.co.get_secure_api_usecase("/dataset/randomInstance", {})
+            # ai_model_query = {
+            #     "instance":random_instance['instance'],
+            #     "top_classes": '1',
+            #     "type":random_instance['type']
+            # }
+            # instance_json = random_instance['instance'] 
+            random_instance = self.co.check_usecase("instance")['instance_json']
             ai_model_query = {
-                "instance":random_instance['instance'],
+                "instance":random_instance,
                 "top_classes": '1',
-                "type":random_instance['type']
+                "type":'dict'
             }
 
-            instance_json = random_instance['instance'] 
+            instance_json = self.co.check_usecase("instance")['instance_view']
             instance =  html.table(instance_json)
-            ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
+            # ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
+            ai_model_result = self.co.check_usecase("instance")['ai_model_result']
 
-            _question = '<p>Here is your test instance:</p>'
-            _question += instance
-            _question += '<br><p>And here is the outcome from the AI system:</p>'
-            _question += html.table(ai_model_result)
+            _question = '<p>Here is the loan application you will be working with in this session.</p>'
+            _question += '<p>'+instance+'</p>'
+            _question += '<p>'+self.co.check_usecase("instance")['instance_desc']+'</p>'
+            _question += '<p>And here is the decision from the Loan Approval AI system:</p>'
+            _question += '<p>'+html.table(ai_model_result)+'</p>'
+            _question += '<p>'+self.co.check_usecase("instance")['ai_model_result_desc']+'</p>'
+            _question += '<p> Once you are ready, please confirm to proceed. </p>'
+
 
             q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
             q.responseOptions = [s.Response("okay", "Okay")]
@@ -580,8 +635,9 @@ class UserQuestionNode(QuestionNode):
         self.start = datetime.now()
         selected_q_id = self.co.check_usecase("selected_need")
         selected_q = self.co.get_question_by_id(selected_q_id)
-        questions = [self.params["Question"]["value"].lower()] if ";" not in self.params["Question"]["value"].lower() else [f.lower() for f in self.params["Question"]["value"].lower().split(";")]
-        match = selected_q.lower() in questions
+        questions = [self.params["Question"].lower()] if ";" not in self.params["Question"].lower() else [f.lower() for f in self.params["Question"].lower().split(";")]
+        match = selected_q.strip().lower() in questions
+
         content = {
             "content": selected_q,
             "id": selected_q_id,
