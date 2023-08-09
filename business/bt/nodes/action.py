@@ -7,6 +7,8 @@ import business.storage as s
 import business.bt.nodes.html_format as html
 import pandas as pd
 import asyncio
+import copy
+
 class ActionNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
@@ -94,7 +96,7 @@ class ConfirmNode(QuestionNode):
         else:
             self.status = State.FAILURE
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -159,7 +161,7 @@ class GreeterNode(QuestionNode):
 
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -245,7 +247,7 @@ class NeedQuestionNode(QuestionNode):
             self.co.modify_evaluation()
             self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable))
         return self.status
         # allow free-text questions?
         # else:
@@ -287,7 +289,7 @@ class PersonaQuestionNode(QuestionNode):
         self.co.modify_usecase(self.variable, _selected_persona["id"])
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -331,7 +333,7 @@ class EvaluationQuestionNode(QuestionNode):
 
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable))
         return self.status
 
     def reset(self):
@@ -366,7 +368,7 @@ class ExplainerNode(node.Node):
         }
         # explainer_result = self.co.get_secure_api_usecase_post("/model/explain", explainer_query)
         if self.endpoint == '/Tabular/LIME':
-            await asyncio.sleep(25)
+            await asyncio.sleep(20)
             temp_ex = self.co.check_usecase("instance")['lime_ex']
             temp_desc = self.co.check_usecase("instance")['lime_desc']
             temp_type = 'image'
@@ -386,7 +388,7 @@ class ExplainerNode(node.Node):
             temp_type = 'html'
             temp_tech = 'AI Model Performance'
         elif self.endpoint == '/Tabular/DisCERN':
-            await asyncio.sleep(15)
+            await asyncio.sleep(25)
             temp_ex = self.co.check_usecase("instance")['discern_ex']
             temp_desc = self.co.check_usecase("instance")['discern_desc']
             temp_type = 'html'
@@ -416,10 +418,52 @@ class ExplainerNode(node.Node):
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
         await self.co.send_and_receive(_question, self.variable)
 
+        self.end = datetime.now()
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable), selected_target=self.co.check_world("selected_target"))
+        
+        self.start = datetime.now()
+        _need = json.loads(self.co.check_world("selected_need"))
+        _q, _r, _rt = self.get_question(_need["content"])
+        fu_question = '<p>In order to determine if the '+temp_tech+' adequately addressed your selected question ('+_need["content"]+'), please answer the question below.</p>'
+        fu_question += '<p>'+_q+'</p>'
+        qq = s.Question(self.id, fu_question, _rt, True)
+        qq.responseOptions = [s.Response(v,k) for k,v in _r.items()]
+        _qq = json.dumps(qq.__dict__, default=lambda o: o.__dict__, indent=4)
+        await self.co.send_and_receive(_qq, "ex_answer"+temp_tech)
+
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable), selected_target=self.co.check_world("selected_target"))
+        self.co.log(node=copy.copy(self), question=_qq, variable=self.co.check_world("ex_answer"+temp_tech))
         return self.status
+
+    def get_features(self):
+        return {"Loan amount": "la",
+        "Loan purpose": "lp",
+        "Monthly installment": "mi",
+        "Interest rate": "ir",
+        "No of payments": "nop",
+        "Annual income": "ai",
+        "Home ownership": "ho",
+        "Payment to-date": "ptd",
+        "Interest to-date": "itd",
+        "Verification status": "vs"}
+
+    def get_question(self, t):
+        if 'What are the necessary features that guarantee this outcome?' == t:
+            return 'What are the top three features/attributes that influenced the AI system decision?', self.get_features(), s.ResponseType.CHECK.value
+        elif 'How much evidence has been considered in the current outcome?' == t:
+            return 'What are the top three features/attributes that the AI system has considered in its decision?', self.get_features(), s.ResponseType.CHECK.value
+        elif 'What features are used by the AI system?' in t:
+            return 'What are the top three features/attributes the AI system has used in its decision?', self.get_features(), s.ResponseType.CHECK.value
+        elif 'How accurate is the AI system?' in t:
+            return 'If the AI system reviews 200 loan applications, about how many decisions might it make incorrectly?', {"1":"1", "2":"2", "5":"5", "10":"10"}, s.ResponseType.RADIO.value
+        elif 'What type of instances would get a different outcome?' in t:
+            return 'Which three attributes should you modify to influence a different decision from the AI system?', self.get_features(), s.ResponseType.CHECK.value
+        elif 'How to change the instance to get a different outcome?' in t:
+            return 'Which three attributes should you modify to influence a different decision from the AI system?', self.get_features(), s.ResponseType.CHECK.value
+        else:
+            return '', {}, ''
+
 
     def reset(self):
         if (self.status == State.SUCCESS):
@@ -565,7 +609,7 @@ class TargetQuestionNode(QuestionNode):
             self.co.modify_world(self.variable, selected_instance)
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable))
         return self.status            
 
     def reset(self):
@@ -598,7 +642,7 @@ class TargetTypeQuestionNode(QuestionNode):
 
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        self.co.log(node=copy.copy(self), question=_question, variable=self.co.check_world(self.variable))
         return self.status            
 
     def reset(self):
@@ -617,7 +661,7 @@ class CompleteNode(node.Node):
         self.start = datetime.now()
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self)
+        self.co.log(node=copy.copy(self))
         return self.status
 
     def reset(self):
@@ -647,7 +691,7 @@ class UserQuestionNode(QuestionNode):
         else:
             self.status = State.FAILURE
         self.end = datetime.now()
-        self.co.log(node=self, variable=content)
+        self.co.log(node=copy.copy(self), variable=content)
         return self.status
 
     def reset(self):
