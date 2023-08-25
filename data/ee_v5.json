@@ -520,7 +520,7 @@
       "Instance": "Evaluate",
       "description": "",
       "properties": {
-        "question": "<p>To assess your experience with the iSee chatbot for the Loan Approval AI system, please respond to the questionnaire next. Each question is presented as a statement, and you can indicate whether you agree or disagree in a 5 point Likert scale. To proceed, please select \"Yes\".</p>",
+        "question": "Would you like to answer a questionnaire to evaluate your experience with iSee?",
         "variable": "evaluate_proceed"
       },
       "display": {

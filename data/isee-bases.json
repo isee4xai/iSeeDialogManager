@@ -9,7 +9,7 @@
     "<user_IRI>": "http://www.w3id.org/iSeeOnto/user#",
     "<evaluation_IRI>": "http://www.w3id.org/iSeeOnto/evaluation#",
     "<bt_IRI>": "https://www.w3id.org/iSeeOnto/BehaviourTree#",
-    "<bt_exec_IRI>": "https://www.w3id.org/iSeeOnto/BehaviourTreeExecution#",
+    "<bt_exec_IRI>": "https://www.w3id.org/iSeeOnto/BehaviourTree#",
     "<ep_IRI>": "http://linkedu.eu/dedalo/explanationPattern.owl#",
     "<ue_IRI>": "http://www.w3id.org/iSeeOnto/userevaluation#",
     "<qual_IRI>": "http://sensornet.abdn.ac.uk/onts/Qual-O#",
