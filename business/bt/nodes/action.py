@@ -142,8 +142,6 @@ class GreeterNode(QuestionNode):
                 proceed_response = json.loads(self.co.check_world(self.variable))
         else:
             _question = "Thank you for using iSee!" +"\n"
-            if usecase_name.lower() == 'loan approval system':
-                _question += "Here is your Prolific Completion Code: C3IZV4R5." +"\n"
             _question += "See you again soon!"
 
             q = s.Question(self.id, _question, s.ResponseType.INFO.value, False)
@@ -289,6 +287,7 @@ class EvaluationQuestionNode(QuestionNode):
         super().__init__(id)
         self.options = {}
         self.type = None
+        self.dimension = None
         self.validators = dict()
 
     def toString(self):
@@ -310,6 +309,7 @@ class EvaluationQuestionNode(QuestionNode):
             responseType = s.ResponseType.RADIO.value            
 
         q = s.Question(self.id, self.question, responseType, True)
+        q.dimension = self.dimension
         if responseType == s.ResponseType.NUMBER.value:
             q.validators = self.validators
         elif responseType != s.ResponseType.OPEN.value: 
@@ -537,9 +537,9 @@ class TargetTypeQuestionNode(QuestionNode):
         q.responseOptions = [s.Response("UPLOAD", "I would like to upload"), s.Response("SAMPLE", "I will use sampling")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
-        # await self.co.send_and_receive(_question, self.variable)
-        # for user study always sample
-        self.co.modify_world(self.variable, json.dumps({"id": "SAMPLE", "content": "I will use sampling"}))
+        await self.co.send_and_receive(_question, self.variable)
+        # # for user study always sample
+        # self.co.modify_world(self.variable, json.dumps({"id": "SAMPLE", "content": "I will use sampling"}))
 
         self.status = State.SUCCESS
         self.end = datetime.now()
@@ -580,7 +580,10 @@ class UserQuestionNode(QuestionNode):
         self.start = datetime.now()
         selected_q_id = self.co.check_usecase("selected_need")
         selected_q = self.co.get_question_by_id(selected_q_id)
-        questions = [self.params["Question"].lower()] if ";" not in self.params["Question"].lower() else [f.lower() for f in self.params["Question"].lower().split(";")]
+        if "Question" in list(self.params.keys()) and type(self.params["Question"]) is not dict:
+            questions = [self.params["Question"].lower()] if ";" not in self.params["Question"].lower() else [f.lower() for f in self.params["Question"].lower().split(";")]
+        else:
+            questions = [self.params["Question"]["value"].lower()] if ";" not in self.params["Question"]["value"].lower() else [f.lower() for f in self.params["Question"]["value"].lower().split(";")]
         match = selected_q.strip().lower() in questions
         content = {
             "content": selected_q,
