@@ -247,6 +247,7 @@ class Usecase:
                     continue
                 q_node.variable = q_id
                 q_node.co = self.co
+                q_node.dimension = q["http://sensornet.abdn.ac.uk/onts/Qual-O#measures"]["instance"]
                 if q_node.type not in ['http://www.w3id.org/iSeeOnto/userevaluation#Number_Question', 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question']:
                     _options = q["http://www.w3id.org/iSeeOnto/userevaluation#hasResponseOptions"]["http://semanticscience.org/resource/SIO_000974"]
                     q_node.options = {_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pairKey"]:_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pair_value_literal"] for _o in _options}
