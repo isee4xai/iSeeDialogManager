@@ -345,7 +345,7 @@ class ExplainerNode(node.Node):
             "instance":random_instance['instance'],
             "type":random_instance['type'],
             "method": self.endpoint,
-            # "params": self.params TODO
+            "params": self.params
         }
         explainer_result = self.co.get_secure_api_usecase_post("/model/explain", explainer_query)
         
