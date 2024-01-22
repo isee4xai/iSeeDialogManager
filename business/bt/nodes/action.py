@@ -348,9 +348,9 @@ class ExplainerNode(node.Node):
             "params": self.params
         }
         explainer_result = self.co.get_secure_api_usecase_post("/model/explain", explainer_query)
-        
-        for o in explainer_result["output_description"]:
-            output_description = explainer_result["output_description"][o]
+        print(explainer_result)
+        for o in explainer_result["meta"]["output_description"]:
+            output_description = explainer_result["meta"]["output_description"][o]
         if explainer_result["type"] == 'image':
             explanation_base64 = explainer_result["explanation"]
             explanation = '<img src="data:image/png;base64,'+explanation_base64+'"/>'
