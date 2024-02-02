@@ -633,7 +633,7 @@ class UserQuestionNode(QuestionNode):
             questions = [self.params["Question"].lower()] if ";" not in self.params["Question"].lower() else [f.lower() for f in self.params["Question"].lower().split(";")]
         else:
             questions = [self.params["Question"]["value"].lower()] if ";" not in self.params["Question"]["value"].lower() else [f.lower() for f in self.params["Question"]["value"].lower().split(";")]
-        match = selected_q.strip().lower() in questions
+        match = selected_q.strip().lower() in [q.strip().lower() for q in questions]
         content = {
             "content": selected_q,
             "id": selected_q_id,
