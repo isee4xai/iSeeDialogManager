@@ -348,7 +348,9 @@ class ExplainerNode(node.Node):
             "params": self.params
         }
         explainer_result = self.co.get_secure_api_usecase_post("/model/explain", explainer_query)
-        print(explainer_result)
+        if "message" in explainer_result and explainer_result["message"]["status"]!=200:
+            raise Exception("Explanation generation error!")
+        
         for o in explainer_result["meta"]["output_description"]:
             output_description = explainer_result["meta"]["output_description"][o]
         if explainer_result["type"] == 'image':
@@ -392,10 +394,10 @@ class TargetQuestionNode(QuestionNode):
     async def tick(self):
         self.start = datetime.now()
         # select from data upload; data enter; and sampling
-        dataset_type_image = self.co.check_dataset_type()
+        dataset_type = self.co.check_dataset_type()
         is_sampling_response = json.loads(self.co.check_world("selected_target_type"))
         # if sampling an image
-        if is_sampling_response["id"] == TargetType.SAMPLE.value and dataset_type_image:
+        if is_sampling_response["id"] == TargetType.SAMPLE.value and dataset_type == "image":
             random_instance = self.co.get_secure_api_usecase("/dataset/randomInstance", {})
 
             ai_model_query = {
@@ -407,7 +409,10 @@ class TargetQuestionNode(QuestionNode):
             instance_base64 = random_instance['instance'] 
             instance = '<img width="400" src="data:image/png;base64,'+instance_base64+'"/>'
             ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
-
+            
+            if "message" in ai_model_result and ai_model_result["message"]["status"]!=200:
+                 raise Exception("Model prediction error!")
+            
             _question = '<p>Here is your test instance:</p>'
             _question += instance
             _question += '<br><p>And here is the outcome from the AI system:</p>'
@@ -421,8 +426,8 @@ class TargetQuestionNode(QuestionNode):
 
             # set selected target
             self.co.modify_world(self.variable, random_instance)
-        # if sampling and not image
-        elif is_sampling_response["id"] == TargetType.SAMPLE.value and not dataset_type_image:
+        # if sampling and tabular
+        elif is_sampling_response["id"] == TargetType.SAMPLE.value and dataset_type == "Multivariate_tabular":
             random_instance = self.co.get_secure_api_usecase("/dataset/randomInstance", {})
 
             ai_model_query = {
@@ -434,6 +439,9 @@ class TargetQuestionNode(QuestionNode):
             instance_json = random_instance['instance'] 
             instance =  html.table(instance_json)
             ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
+
+            if "message" in ai_model_result and ai_model_result["message"]["status"]!=200:
+                 raise Exception("Model prediction error!")
 
             _question = '<p>Here is your test instance:</p>'
             _question += instance
@@ -448,8 +456,35 @@ class TargetQuestionNode(QuestionNode):
 
             # set selected target
             self.co.modify_world(self.variable, random_instance)
-        # upload image
-        elif dataset_type_image:
+        # if sampling and text
+        elif is_sampling_response["id"] == TargetType.SAMPLE.value and dataset_type == "text":
+            random_instance = self.co.get_secure_api_usecase("/dataset/randomInstance", {})
+            ai_model_query = {
+                "instance":random_instance['instance'],
+                "top_classes": '1',
+                "type":random_instance['type']
+            }
+
+            instance_json = random_instance['instance'] 
+            ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
+            if "message" in ai_model_result and ai_model_result["message"]["status"]!=200:
+                 raise Exception("Model prediction error!")
+
+            _question = '<p>Here is your test instance:</p>'
+            _question += instance_json
+            _question += '<br><p>And here is the outcome from the AI system:</p>'
+            _question += html.table(ai_model_result)
+
+            q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
+            q.responseOptions = [s.Response("okay", "Okay")]
+            _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
+            await self.co.send_and_receive(_question, self.variable)
+            self.co.modify_world("sampling_csv_question", _question)
+
+            # set selected target
+            self.co.modify_world(self.variable, random_instance)       
+        # upload image    
+        elif dataset_type == "image":
             _question = "Please upload your data instance."
             q = s.Question(self.id, _question, s.ResponseType.FILE_IMAGE.value, True)
             q.responseOptions = []
@@ -468,6 +503,9 @@ class TargetQuestionNode(QuestionNode):
             }
 
             ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
+            if "message" in ai_model_result and ai_model_result["message"]["status"]!=200:
+                 raise Exception("Model prediction error!")
+            
             _question = '<p>Here is the outcome from the AI system:</p>'
             _question += html.table(ai_model_result)
 
@@ -479,7 +517,7 @@ class TargetQuestionNode(QuestionNode):
 
             self.co.modify_world(self.variable, selected_instance)
         # upload csv
-        else:
+        elif dataset_type == "Multivariate_tabular":
             _question = "Please upload your data instance."
             q = s.Question(self.id, _question, s.ResponseType.FILE_CSV.value, True)
             q.responseOptions = []
@@ -498,6 +536,9 @@ class TargetQuestionNode(QuestionNode):
             }
 
             ai_model_result = self.co.get_secure_api_usecase_post("/model/predict", ai_model_query)
+            if "message" in ai_model_result and ai_model_result["message"]["status"]!=200:
+                 raise Exception("Model prediction error!")
+            
             _question = '<br><p>Here is the outcome from the AI system:</p>'
             _question += html.table(ai_model_result)
 
@@ -508,6 +549,10 @@ class TargetQuestionNode(QuestionNode):
             self.co.modify_world("upload_csv_question", _question)
 
             self.co.modify_world(self.variable, selected_instance)
+        #other types sample or upload
+        else:
+            raise Exception("Explanation Target is not selected!")
+            
         self.status = State.SUCCESS
         self.end = datetime.now()
         self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
@@ -528,19 +573,23 @@ class TargetTypeQuestionNode(QuestionNode):
     async def tick(self):
         self.start = datetime.now()
         # select from data upload; data enter; and sampling
-        dataset_type_image = self.co.check_dataset_type()
-        if dataset_type_image:
+        dataset_type = self.co.check_dataset_type()
+        _question = "<p>Would you like to upload a data instance?</p>"
+
+        if dataset_type == "image":
             _question = '<p>Would you like to upload a data instance (.jpg, .png) or use inbuilt sampling method to select a data instance for testing?</p>'
-        else:
+        elif dataset_type == "Multivariate_tabular":
             _question = '<p>Would you like to upload a data instance (.csv) or use inbuilt sampling method to select a data instance for testing?</p>'
         q = s.Question(self.id, _question, s.ResponseType.RADIO.value, True)
         q.responseOptions = [s.Response("UPLOAD", "I would like to upload"), s.Response("SAMPLE", "I will use sampling")]
         _question = json.dumps(q.__dict__, default=lambda o: o.__dict__, indent=4)
 
-        await self.co.send_and_receive(_question, self.variable)
-        # # for user study always sample
-        # self.co.modify_world(self.variable, json.dumps({"id": "SAMPLE", "content": "I will use sampling"}))
-
+        if dataset_type == "image" or dataset_type == "Multivariate_tabular":
+            await self.co.send_and_receive(_question, self.variable)
+        else:
+            # other datatypes always use sampling
+            self.co.modify_world(self.variable, json.dumps({"id": "SAMPLE", "content": "I will use sampling"}))
+        
         self.status = State.SUCCESS
         self.end = datetime.now()
         self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
