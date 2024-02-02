@@ -304,5 +304,5 @@ class Usecase:
                 self.co.modify_world(o, False)
             self.co.modify_world(selected_intent, True)
 
-    def dataset_type_image(self):
-        return self.get("dataset_type") == "http://www.w3id.org/iSeeOnto/explainer#image"
+    def dataset_type(self):
+        return self.get("dataset_type").replace("http://www.w3id.org/iSeeOnto/explainer#" ,"")
