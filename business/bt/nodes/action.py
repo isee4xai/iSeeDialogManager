@@ -7,6 +7,7 @@ import business.storage as s
 import business.bt.nodes.html_format as html
 import pandas as pd
 
+bosch_id = "65042b68a6093929a203a707"
 class ActionNode(node.Node):
     def __init__(self, id) -> None:
         super().__init__(id)
@@ -376,7 +377,11 @@ class ExplainerNode(node.Node):
 
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable), selected_target=self.co.check_world("selected_target"))
+        if self.co.check_world("usecase_id") == bosch_id:
+            self.co.log(node=self, question=technique, variable=self.co.check_world(self.variable), selected_target="")
+        else:
+            self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable), selected_target=self.co.check_world("selected_target"))
+
         return self.status
 
     def reset(self):
@@ -555,7 +560,10 @@ class TargetQuestionNode(QuestionNode):
             
         self.status = State.SUCCESS
         self.end = datetime.now()
-        self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
+        if self.co.check_world("usecase_id") == bosch_id:
+            self.co.log(node=self, question="outcome", variable=self.co.check_world(self.variable))
+        else:
+            self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable))
         return self.status            
 
     def reset(self):
