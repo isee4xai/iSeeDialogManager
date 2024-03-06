@@ -77,6 +77,7 @@ class Logger:
         properties = []
         for (k, v) in _exec_params.items():
             if k in self.exec_variables:
+                print(k,v)
                 kv = exec["<prov_IRI>generated"]["<bt_IRI>properties"]["<bt_IRI>hasDictionaryMember"][0].copy()
                 kv["<bt_IRI>pairKey"] = k
                 kv["<bt_IRI>pair_value_object"] = v if type(
