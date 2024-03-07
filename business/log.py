@@ -80,7 +80,7 @@ class Logger:
                 kv = exec["<prov_IRI>generated"]["<bt_IRI>properties"]["<bt_IRI>hasDictionaryMember"][0].copy()
                 kv["<bt_IRI>pairKey"] = k
                 kv["<bt_IRI>pair_value_object"] = v if type(
-                    v) == dict else v if type(v) == bool else "" if v == None else json.loads(v)
+                    v) == dict else v if type(v) == bool else json.loads(v)
                 properties.append(kv)
         exec["<prov_IRI>generated"]["<bt_IRI>properties"]["<bt_IRI>hasDictionaryMember"] = properties
         exec["instance"] = exec["instance"]+"_"+str(index)
