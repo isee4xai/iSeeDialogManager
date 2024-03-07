@@ -378,7 +378,7 @@ class ExplainerNode(node.Node):
         self.status = State.SUCCESS
         self.end = datetime.now()
         if self.co.check_world("usecase_id") == bosch_id:
-            self.co.log(node=self, question=technique, variable=self.co.check_world(self.variable), selected_target="removed")
+            self.co.log(node=self, question=technique, variable=self.co.check_world(self.variable), selected_target="")
         else:
             self.co.log(node=self, question=_question, variable=self.co.check_world(self.variable), selected_target=self.co.check_world("selected_target"))
 
