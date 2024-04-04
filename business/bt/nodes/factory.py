@@ -1,9 +1,10 @@
-from business.bt.nodes.action import ActionNode, Succeder, Failer, GreeterNode, InitialiserNode, KnowledgeQuestionNode
-from business.bt.nodes.action import QuestionNode, NeedQuestionNode, PersonaQuestionNode, ExplainerNode, MultipleChoiceQuestionNode
-from business.bt.nodes.action import ConfirmNode 
+from business.bt.nodes.action import ActionNode, Succeder, Failer, GreeterNode, InitialiserNode, KnowledgeQuestionNode, TargetQuestionNode
+from business.bt.nodes.action import QuestionNode, NeedQuestionNode, PersonaQuestionNode, ExplainerNode, EvaluationQuestionNode, CompleteNode
+from business.bt.nodes.action import ConfirmNode, TargetTypeQuestionNode, UserQuestionNode
 from business.bt.nodes.modifier import UsecaseModifierNode, WorldModifierNode
-from business.bt.nodes.condition import ConditionNode, EqualNode
+from business.bt.nodes.condition import ConditionNode, EqualNode, EqualValueNode
 from business.bt.nodes.composite import SequenceNode, PriorityNode, EvaluationStrategyNode, ExplanationStrategyNode
+from business.bt.nodes.hybrid import SupplementNode, ComplementNode, ReplacementNode, VariantNode
 from business.bt.nodes.decorator import LimitActivationNode, RepeatNode, RepTillFailNode, RepTillSuccNode, InverterNode
 from business.bt.nodes.node import Node
 
@@ -21,8 +22,8 @@ def makeNode(type, id, label):
         res = Failer(id)
     elif type == "Question":
         res = QuestionNode(id)
-    elif type == "Multiple Choice Question":
-        res = MultipleChoiceQuestionNode(id)
+    elif type == "Evaluation Question":
+        res = EvaluationQuestionNode(id)
     elif type == "Succeeder":
         res = Succeder(id)
     elif type == "Explanation Method":
@@ -31,6 +32,10 @@ def makeNode(type, id, label):
         res = NeedQuestionNode(id)
     elif type == "Knowledge Question":
         res = KnowledgeQuestionNode(id)
+    elif type == "Target Question":
+        res = TargetQuestionNode(id)
+    elif type == "Target Type Question":
+        res = TargetTypeQuestionNode(id)
     elif type == "Persona Question":
         res = PersonaQuestionNode(id)
     elif type == "Initialiser":
@@ -39,11 +44,17 @@ def makeNode(type, id, label):
         res = GreeterNode(id)
     elif type == "Confirm Question":
         res = ConfirmNode(id)
+    elif type == "Complete":
+        res = CompleteNode(id)
+    elif type == "User Question":
+        res = UserQuestionNode(id)
 
     elif type == "Condition":
         res = ConditionNode(id)
     elif type == "Equal":
         res = EqualNode(id)
+    elif type == "Equal Value":
+        res = EqualValueNode(id)
 
     elif type == "Priority":
         res = PriorityNode(id)
@@ -53,6 +64,15 @@ def makeNode(type, id, label):
         res = EvaluationStrategyNode(id)
     elif type == "Explanation Strategy":
         res = ExplanationStrategyNode(id)
+
+    elif type == "Replacement":
+        res = ReplacementNode(id)
+    elif type == "Variant":
+        res = VariantNode(id)
+    elif type == "Complement":
+        res = ComplementNode(id)
+    elif type == "Supplement":
+        res = SupplementNode(id)        
 
     elif type == "RepeatUntilFailure":
         res = RepTillFailNode(id)

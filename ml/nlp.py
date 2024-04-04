@@ -18,11 +18,10 @@ class SentimentAnalyser:
         else:
             SentimentAnalyser.__instance = self
 
-        self.sentiment_pipeline = pipeline("sentiment-analysis")
+        self.sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 
     def is_positive(self, utterance):
         result = self.sentiment_pipeline(utterance)
-        print(result)
         _result = [r for r in result if r["label"]
                    == "POSITIVE" and r["score"] > 0.5]
         if _result:

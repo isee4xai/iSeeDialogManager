@@ -2,17 +2,19 @@ import business.bt.tree_util as tg
 import business.bt.nodes.factory as node_factory
 import business.bt.bt as bt
 from typing import List
-from enum import IntEnum
+from enum import Enum
 import json
 
 
-class ResponseType(IntEnum):
-    RADIO = 0
-    CHECK = 1
-    LIKERT = 2
-    NUMBER = 3
-    INFO = 4
-    OPEN = 5
+class ResponseType(Enum):
+    RADIO = "Radio"
+    CHECK = "Checkbox"
+    LIKERT = "Likert"
+    NUMBER = "Number"
+    INFO = "Info"
+    OPEN = "Free-Text"
+    FILE_IMAGE = "File-IMAGE"
+    FILE_CSV = "File-CSV"
 
 
 class Response:
@@ -30,19 +32,13 @@ class Question:
         self.completed = ""
         self.dimension = ""
         self.intent = ""
-        self.validators = None
+        self.validators = dict()
         self.answer: List[Response] = []
         self.required = required
 
 
 class World:
     def __init__(self) -> None:
-        self.last_user_answer = None
-        self.user_intent = ''
-        self.survey_is_completed = False
-        self.user_greeted = False
-        self.user_satisfied = False
-        #self.save = JSONS
         self.storage = dict()
 
     # put or update a value in the storage dictionnary
@@ -64,14 +60,16 @@ class World:
 
 
 class Ontology:
-    def __init__(self) -> None:
+    def __init__(self, co) -> None:
         self.storage = dict()
+        self.co = co
         self.init()
 
-    # TODO load from API in get
     def init(self):
-        self.storage["KnowledgeLevel"] = ["no knowledge", "novice",
-                                          "advanced beginner", "competent", "proficient", "expert"]
+        temp = self.co.get_api("https://api-onto-dev.isee4xai.com/api/onto/cockpit/DialogFields", {});
+        for key in temp:
+            for item in temp[key]:
+                self.store(item["key"], item["label"])
 
     # put or update a value in the storage dictionnary
     def store(self, _key, _value):
@@ -93,111 +91,74 @@ class Usecase:
     def __init__(self, usecase_id, co) -> None:
         self.storage = {}
         self.co = co
-        # TODO get usecase by id
-        # self.json = self.co.call_api("", usecase_id)
-        with open("data/63231e9432f3b8255c1b0346.json", 'r') as usecase_file:
-            self.json = json.load(usecase_file)
+        self.json = self.co.get_secure_api_usecase("/casestructure", {})
+        # testing
+        # with open("data/CaseStructureData.json", 'r') as case_file:
+        #     self.json = json.load(case_file)
         # {persona_id: properties{}}
         self.personas = {}
         # {persona_id: intents[]}
         self.persona_intents = {}
         # {persona_id: questions{}}
         self.persona_questions = {}
-        # {persona_id: composite explanation strategy}
-        self.persona_expstrategy = {}
-        # {intent_id: questions[]}
+        # {persona_id: {intent_id, composite explanation strategy}}
+        self.p_i_expstrategy = {}
+        # {question_id: intent_id}
         self.question_intent = {}
         # {persona_id: composite evaluation strategy}
         self.persona_evalstrategy = {}
+        self.empty_tree = tg.generate_tree_from_file("data/empty_es.json", self.co)
 
         self.set_personas()
 
     def set_personas(self):
         for case in self.json:
-            self.store("usecase_name", case["comment"])
+            self.store("usecase_name", " ".join(case["http://www.w3.org/2000/01/rdf-schema#comment"].split("_")) if "_" in case["http://www.w3.org/2000/01/rdf-schema#comment"] else case["http://www.w3.org/2000/01/rdf-schema#comment"])
+            # self.store(
+            #     "ai_model_id", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["hasModelId"]["value"])
+            self.store("usecase_version", case["http://www.w3.org/2002/07/owl#versionInfo"])
+            self.store("dataset_type", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#trainedOn"][0]["http://www.w3id.org/iSeeOnto/aimodel#hasDatasetType"]["instance"])
             self.store(
-                "ai_model_id", case["hasDescription"]["hasAIModel"]["hasModelId"]["value"])
-            self.store(
-                "ai_model_url", case["hasDescription"]["hasAIModel"]["hasModelURL"]["value"])
+                "ai_model_meta", case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasAIModel"]["http://www.w3id.org/iSeeOnto/aimodel#hasCaseStructureMetaData"]["value"])
 
-            persona_id = case["hasDescription"]["hasUserGroup"]["instance"]
-            ai_knowledge = [item["levelOfKnowledge"]["instance"] for item in case["hasDescription"]
-                            ["hasUserGroup"]["possess"] if item["classes"][0] == "AI Method Knowledge"][0]
-            domain_knowledge = [item["levelOfKnowledge"]["instance"] for item in case["hasDescription"]
-                                ["hasUserGroup"]["possess"] if item["classes"][0] == "Domain Knowledge"][0]
-            self.personas[persona_id] = {"Name": case["hasDescription"]["hasUserGroup"]["comment"],
-                                         "AI Knowledge Level": ai_knowledge,
-                                         "Domain Knowledge Level": domain_knowledge}
-            intent_id = case["hasDescription"]["hasUserGroup"]["hasIntent"]["instance"]
+            persona_id = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["instance"]
+            ai_knowledge = [item["http://www.w3id.org/iSeeOnto/user#levelOfKnowledge"]["instance"] for item in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]
+                            ["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["https://purl.org/heals/eo#possess"] if item["classes"][0] == "http://www.w3id.org/iSeeOnto/user#AIMethodKnowledge"][0]
+            domain_knowledge = [item["http://www.w3id.org/iSeeOnto/user#levelOfKnowledge"]["instance"] for item in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]
+                            ["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["https://purl.org/heals/eo#possess"] if item["classes"][0] == "http://www.w3id.org/iSeeOnto/user#DomainKnowledge"][0]
+            self.personas[persona_id] = {"Name": case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3.org/2000/01/rdf-schema#comment"],
+                                         "AI Knowledge Level": self.co.check_ontology(ai_knowledge),
+                                         "Domain Knowledge Level": self.co.check_ontology(domain_knowledge)}
+            intent_id = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
             if persona_id in self.persona_intents:
                 self.persona_intents[persona_id].append(
-                    case["hasDescription"]["hasUserGroup"]["hasIntent"]["instance"])
+                    case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"])
             else:
                 self.persona_intents[persona_id] = [
-                    case["hasDescription"]["hasUserGroup"]["hasIntent"]["instance"]]
+                    case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]]
             if persona_id in self.persona_questions:
                 self.persona_questions[persona_id].update(
-                    {_q["instance"]: _q["comment"] for _q in case["hasDescription"]["hasUserGroup"]["asks"]})
+                    {_q["instance"]: _q["http://semanticscience.org/resource/SIO_000300"] for _q in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["https://purl.org/heals/eo#asks"]})
             else:
                 self.persona_questions[persona_id] = {
-                    _q["instance"]: _q["comment"] for _q in case["hasDescription"]["hasUserGroup"]["asks"]}
+                    _q["instance"]: _q["http://semanticscience.org/resource/SIO_000300"] for _q in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["https://purl.org/heals/eo#asks"]}
 
-            for q in case["hasDescription"]["hasUserGroup"]["asks"]:
+            for q in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["https://purl.org/heals/eo#asks"]:
                 self.question_intent[q["instance"]] = intent_id
 
-            if persona_id in self.persona_expstrategy:
-                temp = [t for t in case["hasSolution"]["trees"]
-                        if t["id"] == case["hasSolution"]['selectedTree']][0]
-                intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
-                intent = case["hasDescription"]["hasUserGroup"]["hasIntent"]["instance"]
+            temp = [t for t in case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]["trees"]
+                    if t["id"] == case["http://www.w3id.org/iSeeOnto/explanationexperience#hasSolution"]['selectedTree']][0]
+            _intent_strategy_tree = tg.generate_tree_from_obj(temp, self.co)
 
-                condition_node = node_factory.makeNode("Equal", intent, intent)
-                condition_node.variables = {intent: True}
-                condition_node.co = self.co
-
-                sequence_node = node_factory.makeNode(
-                    "Sequence", "Sequence_"+intent, "Sequence_"+intent)
-                sequence_node.children.append(condition_node)
-                sequence_node.children.append(
-                    intent_strategy_tree.currentNode.children[0])
-                sequence_node.co = self.co
-
-                current_subtree = self.persona_expstrategy[persona_id]
-                exstrgy_node = current_subtree.nodes["ExplanationStrategy"]
-                exstrgy_node.children.append(sequence_node)
-
-                _nodes = {**current_subtree.nodes, **intent_strategy_tree.nodes, sequence_node.id: sequence_node,
-                          condition_node.id: condition_node}
-                self.persona_expstrategy[persona_id] = bt.Tree(
-                    exstrgy_node, _nodes)
-
+            _intent = case["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"]
+            _tree = bt.Tree(_intent_strategy_tree.root.children[0], _intent_strategy_tree.nodes)       
+            if persona_id in self.p_i_expstrategy:
+                _i_strategy = self.p_i_expstrategy[persona_id]
             else:
-                temp = [t for t in case["hasSolution"]["trees"]
-                        if t["id"] == case["hasSolution"]['selectedTree']][0]
-                intent_strategy_tree = tg.generate_tree_from_obj(temp, None)
-                intent = case["hasDescription"]["hasUserGroup"]["hasIntent"]["instance"]
-
-                condition_node = node_factory.makeNode("Equal", intent, intent)
-                condition_node.variables = {intent: True}
-                condition_node.co = self.co
-
-                sequence_node = node_factory.makeNode(
-                    "Sequence", "Sequence_"+intent, "Sequence_"+intent)
-                sequence_node.children.append(condition_node)
-                sequence_node.children.append(
-                    intent_strategy_tree.currentNode.children[0])
-                sequence_node.co = self.co
-
-                exstrgy_node = node_factory.makeNode(
-                    "Sequence", "ExplanationStrategy", "ExplanationStrategy")
-                exstrgy_node.children.append(sequence_node)
-                exstrgy_node.co = self.co
-
-                _nodes = {**intent_strategy_tree.nodes, exstrgy_node.id: exstrgy_node, sequence_node.id: sequence_node,
-                          condition_node.id: condition_node}
-                self.persona_expstrategy[persona_id] = bt.Tree(
-                    exstrgy_node, _nodes)
-
+                _i_strategy = {"none":bt.Tree(self.empty_tree.root.children[0], self.empty_tree.nodes)}
+            _i_strategy[_intent] = _tree
+            self.p_i_expstrategy[persona_id] = _i_strategy
+                
     # store data from the use case
     def store(self, _key, _value):
         self.storage[_key] = _value
@@ -237,11 +198,33 @@ class Usecase:
         _qs = {}
         if self.get("selected_persona") and self.persona_questions:
             p_id = self.get("selected_persona")
-            _qs = self.persona_questions[p_id]
+            _qs_ = self.persona_questions[p_id]
+            _is_ = self.get("selected_intents") 
+            for _k, _v in _qs_.items():
+                _i = self.question_intent[_k]
+                if not _is_ or (_is_ and _i not in _is_):
+                    _qs[_k] = _v
+            if _is_ and _qs:
+                _qs["none"] = "I don't have any more questions"
         return _qs
+    
+    def get_question(self, q_id):
+        if self.get("selected_persona") and self.persona_questions:
+            _qs_ = self.persona_questions[self.get("selected_persona")]
+            for _k, _v in _qs_.items():
+                if _k == q_id:
+                    return _v
+        return None
 
-    def init_persona_strategy(self):
-        None
+    def duplicate_question(self, _list, _q_text, _q_type):
+        _list_filtered = [item for item in _list if (item.question == _q_text and item.type == _q_type)]
+        return len(_list_filtered) > 0
+    
+    def reorder_eval_questions(self, nodes):
+        new_nodes = []
+        new_nodes.extend([n for n in nodes if n.type != 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question'])
+        new_nodes.extend([n for n in nodes if n.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question'])
+        return new_nodes
 
     def modify_evaluation_strategy(self, _intent):
         if self.get("selected_persona") not in self.persona_evalstrategy:
@@ -252,26 +235,40 @@ class Usecase:
         else:
             eval_strategy_node = self.persona_evalstrategy[self.get("selected_persona")].root
 
-        intent_case = [c for c in self.json if c["hasDescription"]["hasUserGroup"]["instance"] == self.get("selected_persona")
-                           and c["hasDescription"]["hasUserGroup"]["hasIntent"]["instance"] == _intent]
+        intent_case = [c for c in self.json if c["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["instance"] == self.get("selected_persona")
+                           and c["http://www.w3id.org/iSeeOnto/explanationexperience#hasDescription"]["http://www.w3id.org/iSeeOnto/explanationexperience#hasUserGroup"]["http://www.w3id.org/iSeeOnto/user#hasIntent"]["instance"] == _intent]
         if len(intent_case) > 0:
-            for q in intent_case[0]["hasOutcome"]["basedOn"]["questions"]:
+            for q in intent_case[0]["http://www.w3id.org/iSeeOnto/explanationexperience#hasOutcome"]["http://linkedu.eu/dedalo/explanationPattern.owl#isBasedOn"]:
                 q_id = q["instance"]
-                q_node = node_factory.makeNode("Multiple Choice Question", q_id, q_id)
-                q_node.question = q["comment"]
+                q_node = node_factory.makeNode("Evaluation Question", q_id, q_id)
+                q_node.question = q["http://www.w3.org/2000/01/rdf-schema#comment"]
                 q_node.type = q["classes"][0]
+                if self.duplicate_question(eval_strategy_node.children, q_node.question, q_node.type):
+                    continue
                 q_node.variable = q_id
                 q_node.co = self.co
-                # TODO get it from JSON
-                q_node.options = {1: "I strongly disagree", 2: "I disagree",
-                                    3: "I'm neutral", 4: "I agree", 5: "I strongly agree"}
+                q_node.dimension = q["http://sensornet.abdn.ac.uk/onts/Qual-O#measures"]["instance"]
+                if q_node.type not in ['http://www.w3id.org/iSeeOnto/userevaluation#Number_Question', 'http://www.w3id.org/iSeeOnto/userevaluation#Open_Question']:
+                    _options = q["http://www.w3id.org/iSeeOnto/userevaluation#hasResponseOptions"]["http://semanticscience.org/resource/SIO_000974"]
+                    q_node.options = {_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pairKey"]:_o["https://www.w3id.org/iSeeOnto/BehaviourTree#pair_value_literal"] for _o in _options}
+                # assume max and min comes in the same order
+                if q_node.type == 'http://www.w3id.org/iSeeOnto/userevaluation#Number_Question':
+                    q_node.validators["max"] = int(q["http://www.w3id.org/iSeeOnto/userevaluation#hasAnswerFrom"][0]["http://www.w3.org/ns/prov#value"]["value"])
+                    q_node.validators["min"] = int(q["http://www.w3id.org/iSeeOnto/userevaluation#hasAnswerFrom"][1]["http://www.w3.org/ns/prov#value"]["value"])
                 eval_strategy_node.children.append(q_node)
-
+        eval_strategy_node.children = self.reorder_eval_questions(eval_strategy_node.children)
         self.persona_evalstrategy[self.get("selected_persona")] = bt.Tree(eval_strategy_node, None)            
 
-    def get_persona_explanation_strategy(self):
-        if self.get("selected_persona") and self.get("selected_persona") in self.persona_expstrategy:
-            return self.persona_expstrategy[self.get("selected_persona")]
+    def get_persona_intent_explanation_strategy(self):
+        selected_need = self.get("selected_need")
+        if self.get("selected_persona") and self.get("selected_persona") in self.p_i_expstrategy:
+            if selected_need == "none":
+                selected_intent = "none"
+            else:
+                selected_intent = self.question_intent[selected_need]
+            _p_i_exs = self.p_i_expstrategy[self.get("selected_persona")]
+            if selected_intent and selected_intent in _p_i_exs:
+                return _p_i_exs[selected_intent]
         return None
 
     def get_persona_evaluation_strategy(self):
@@ -280,7 +277,12 @@ class Usecase:
         return None
 
     def modify_intent(self):
-        if self.get("selected_need"):
+        if not self.get("selected_need"):
+            return
+        if self.get("selected_need") == 'none':
+            for o in self.persona_intents[self.get("selected_persona")]:
+                self.co.modify_world(o, False)
+        else:
             q_id = self.get("selected_need")
             selected_intent = self.question_intent[q_id]
             current_intents = None
@@ -301,3 +303,6 @@ class Usecase:
             for o in other_intents:
                 self.co.modify_world(o, False)
             self.co.modify_world(selected_intent, True)
+
+    def dataset_type(self):
+        return self.get("dataset_type").replace("http://www.w3id.org/iSeeOnto/explainer#" ,"")

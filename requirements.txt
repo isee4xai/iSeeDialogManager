@@ -1,3 +1,5 @@
 uvicorn[standard]
 fastapi
 transformers
+pandas
+torch
